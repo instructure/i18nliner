@@ -20,7 +20,7 @@ module I18nliner
         receiver = process(exp.shift)
         receiver = receiver.last if receiver
         method = exp.shift
-  
+
         if extractable_call?(receiver, method)
           @current_line = exp.line
 
@@ -33,7 +33,7 @@ module I18nliner
           # one
           process exp.shift until exp.empty?
         end
-  
+
         s
       end
 
@@ -57,7 +57,7 @@ module I18nliner
         end
         values
       end
-  
+
       def evaluate_expression(exp)
         if exp.sexp_type == :lit || exp.sexp_type == :str
           exp.shift
@@ -68,14 +68,14 @@ module I18nliner
         process(exp)
         UnsupportedExpression
       end
-  
+
       def string_concatenation?(exp)
         exp.sexp_type == :call &&
         exp[2] == :+ &&
         exp.last &&
         exp.last.sexp_type == :str
       end
-  
+
       def string_from(exp)
         exp.shift
         lhs = exp.shift

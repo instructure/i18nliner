@@ -32,7 +32,6 @@ describe I18nliner::Extractors::RubyExtractor do
     end
 
     it "should extract valid t calls" do
-      if false
       extract("t 'Foo'").should ==
         {"foo_f44ad75d" => "Foo"}
       extract("t :bar, 'Baz'").should ==
@@ -45,7 +44,6 @@ describe I18nliner::Extractors::RubyExtractor do
         {"zomg_lots_a54248c9.one" => "just one", "zomg_lots_a54248c9.other" => "zomg lots"}
       extract("t 'foo2', <<-STR\nFoo\nSTR").should ==
         {'foo2' => "Foo"}
-      end
       extract("t 'foo', 'F' + 'o' + 'o'").should ==
         {'foo' => "Foo"}
     end
