@@ -26,4 +26,7 @@ module I18nliner
   class InvalidOptionKeyError < ExtractionError; end
   class KeyAsScopeError < ExtractionError; end
   class KeyInUseError < ExtractionError; end
+
+  class BlockExprNestingError < StandardError; end
+  class MalformedErbError < StandardError; end
 end

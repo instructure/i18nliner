@@ -1,10 +1,12 @@
+require 'i18nliner/errors'
+
 module I18nliner
   module PreProcessors
     class ErbPreProcessor
 
       class Block
         attr_reader :buffer
-        def initialize(string = '', translate = '')
+        def initialize(string = '', translate = false)
           @initial = string
           @translate = translate
           @buffer = ''
@@ -20,7 +22,7 @@ module I18nliner
         end
 
         def inlinify
-          "<%= t #{@buffer.inspect} %>"
+          "<%= t #{@buffer.strip.inspect} %>"
         end
       end
 
