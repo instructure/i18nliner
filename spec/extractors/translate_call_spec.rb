@@ -1,0 +1,154 @@
+require 'i18nliner'
+require 'i18nliner/scope'
+require 'i18nliner/extractors/translate_call'
+
+describe I18nliner::Extractors::TranslateCall do
+  def call(scope, *args)
+    I18nliner::Extractors::TranslateCall.new(scope, nil, nil, :t, args)
+  end
+
+  let(:no_scope) { I18nliner::Scope.new(nil) }
+  let(:scope) { I18nliner::Scope.new("foo", :auto => true, :allow_relative => true) }
+
+  describe "signature" do
+    it "should reject extra arguments" do
+      expect {
+        call(no_scope, :key, "value", {}, :wat)
+      }.to raise_error(I18nliner::InvalidSignatureError)
+    end
+
+    it "should accept a valid key or default" do
+      expect {
+        call(no_scope, "key", "value", {})
+      }.to_not raise_error
+
+      expect {
+        call(no_scope, "key_or_value", {})
+      }.to_not raise_error
+
+      expect {
+        call(no_scope, :key, {})
+      }.to_not raise_error
+    end
+
+    it "should require at least a key or default" do
+      expect {
+        call(no_scope)
+      }.to raise_error(I18nliner::InvalidSignatureError)
+    end
+
+    it "should require a literal default" do
+      expect {
+        call(no_scope, :key, Object.new)
+      }.to raise_error(I18nliner::InvalidSignatureError)
+    end
+
+    it "should ensure options is a hash, if provided" do
+      expect {
+        call(no_scope, :key, "value", Object.new)
+      }.to raise_error(I18nliner::InvalidSignatureError)
+    end
+  end
+
+  describe "key inference" do
+    it "should generate literal keys" do
+      I18nliner.inferred_key_format :literal do
+        call(no_scope, "zomg key").translations.should ==
+          [["zomg key", "zomg key"]]
+      end
+    end
+
+    it "should generate underscored keys" do
+      I18nliner.inferred_key_format :underscored do
+        call(no_scope, "zOmg key!!").translations.should ==
+          [["zomg_key", "zOmg key!!"]]
+      end
+    end
+
+    it "should generate underscored + crc32 keys" do
+      I18nliner.inferred_key_format :underscored_crc32 do
+        call(no_scope, "zOmg key!!").translations.should ==
+          [["zomg_key_90a85b0b", "zOmg key!!"]]
+      end
+    end
+  end
+
+  describe "normalization" do
+    it "should make keys absolute if scoped" do
+      call(scope, '.key', "value").translations[0][0].should =~ /\Afoo\.key/
+    end
+
+    it "should strip whitespace from defaults" do
+      call(no_scope, "\t whitespace \n\t ").translations[0][1].should == "whitespace"
+    end
+  end
+
+  describe "pluralization" do
+    describe "defaults" do
+      it "should be inferred" do
+        translations = call(no_scope, "person", {:count => Object.new}).translations
+        translations.map(&:last).sort.should == ["%{count} people", "1 person"]
+      end
+
+      it "should not be inferred if given multiple words" do
+        translations = call(no_scope, "happy person", {:count => Object.new}).translations
+        translations.map(&:last).should == ["happy person"]
+      end
+    end
+
+    it "should accept valid hashes" do
+      call(no_scope, {:one => "asdf", :other => "qwerty"}, :count => 1).translations.sort.should ==
+        [["qwerty_98185351.one", "asdf"], ["qwerty_98185351.other", "qwerty"]]
+      call(no_scope, :some_stuff, {:one => "asdf", :other => "qwerty"}, :count => 1).translations.sort.should ==
+        [["some_stuff.one", "asdf"], ["some_stuff.other", "qwerty"]]
+    end
+
+    it "should reject invalid keys" do
+      expect {
+        call(no_scope, {:one => "asdf", :twenty => "qwerty"}, :count => 1)
+      }.to raise_error(I18nliner::InvalidPluralizationKeyError)
+    end
+
+    it "should require essential keys" do
+      expect {
+        call(no_scope, {:one => "asdf"}, :count => 1)
+      }.to raise_error(I18nliner::MissingPluralizationKeyError)
+    end
+
+    it "should reject invalid count defaults" do
+      expect {
+        call(no_scope, {:one => "asdf", :other => Object.new}, :count => 1)
+      }.to raise_error(I18nliner::InvalidPluralizationDefaultError)
+    end
+
+    it "should complain if no :count is provided" do
+      expect {
+        call(no_scope, {:one => "asdf", :other => "qwerty"})
+      }.to raise_error(I18nliner::MissingCountValueError)
+    end
+  end
+
+  describe "validation" do
+    it "should require all interpolation values" do
+      I18nliner.infer_interpolation_values false do
+        expect {
+          call(no_scope, "asdf %{bob}")
+        }.to raise_error(I18nliner::MissingInterpolationValueError)
+      end
+    end
+
+    it "should require all interpolation values in count defaults" do
+      I18nliner.infer_interpolation_values false do
+        expect {
+          call(no_scope, {:one => "asdf %{bob}", :other => "querty"})
+        }.to raise_error(I18nliner::MissingInterpolationValueError)
+      end
+    end
+
+    it "should ensure option keys are symbols or strings" do
+      expect {
+        call(no_scope, "hello", {Object.new => "okay"})
+      }.to raise_error(I18nliner::InvalidOptionKeyError)
+    end
+  end
+end
