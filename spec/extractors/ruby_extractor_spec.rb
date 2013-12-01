@@ -1,10 +1,7 @@
-require 'sexp_processor'
 require 'ruby_parser'
-require 'i18nliner'
 require 'i18nliner/errors'
 require 'i18nliner/scope'
 require 'i18nliner/extractors/ruby_extractor'
-require 'i18nliner/extractors/translate_call'
 
 describe I18nliner::Extractors::RubyExtractor do
   def extract(source, scope = I18nliner::Scope.new(nil))

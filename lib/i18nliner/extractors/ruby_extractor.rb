@@ -1,6 +1,10 @@
+require 'sexp_processor'
+require 'i18nliner/errors'
+require 'i18nliner/extractors/translate_call'
+
 module I18nliner
   module Extractors
-    class RubyExtractor < SexpProcessor
+    class RubyExtractor < ::SexpProcessor
       TRANSLATE_CALLS = [:t, :translate]
       attr_reader :current_line
 

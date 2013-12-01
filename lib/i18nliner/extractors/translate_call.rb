@@ -1,3 +1,4 @@
+require 'active_support/core_ext/string/inflections'
 require 'i18nliner/call_helpers'
 require 'i18nliner/errors'
 

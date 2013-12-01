@@ -1,5 +1,6 @@
 require 'iconv'
 require 'zlib'
+require 'i18nliner'
 
 module I18nliner
   module CallHelpers
