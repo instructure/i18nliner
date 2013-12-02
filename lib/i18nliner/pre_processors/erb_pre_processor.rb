@@ -121,6 +121,12 @@ module I18nliner
       end
 
       def result
+        # TODO the new plan:
+        # 1. whenever we find a t block expr, go till we find the end
+        # 2. if we find another t block expr before the end, goto step 1
+        # 3. capture any inline expressions along the way
+        # 4. if we find *any* other statement or block expr, abort,
+        #    since it's a no-go
         # TODO get line numbers for errors
         @stack = [Block.new]
         @source.split(BLOCK_EXPR).each do |string|
