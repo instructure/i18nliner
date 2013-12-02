@@ -1,4 +1,5 @@
 require 'i18nliner/errors'
+require 'nokogiri'
 
 module I18nliner
   module PreProcessors
@@ -17,12 +18,70 @@ module I18nliner
         end
 
         def close(terminator)
-          return inlinify if translate?
-          '' << @initial << @buffer << terminator
+          if translate?
+            inlinify
+          else
+            '' << @initial << @buffer << terminator
+          end
         end
 
         def inlinify
-          "<%= t #{@buffer.strip.inspect} %>"
+          default, options = normalize_call
+          result = "<%= t "
+          result << default.strip.inspect
+          result << ", " << options.inspect if options.size > 0
+          result << " %>"
+        end
+
+        def normalize_call
+          default = ''
+          options = {}
+          wrappers = []
+          if @buffer =~ /<[^%]/
+            # TODO: expressions -> temp placeholders
+            nodes = Nokogiri::HTML.fragment(@buffer).children
+            nodes.each do |node|
+              if node.is_a?(Nokogiri::XML::Text)
+                default << node.content
+              else
+                # TODO: handle standalone content (i.e. not wrappers,
+                # e.g. <input>)
+                text, wrapper = handle_node(node)
+                wrappers << wrapper
+                default << wrap(text, wrappers.length)
+              end
+            end
+            # TODO: temp placeholders -> placeholders (+ wrappers)
+          else
+            default << @buffer
+            # TODO: expressions -> placeholders (+ wrappers)
+          end
+          options[:wrappers] = wrappers unless wrappers.empty?
+          [default, options]
+        end
+
+        def handle_node(root_node)
+          text = nil
+          nodes = root_node.children.to_a
+          while node = nodes.shift
+            if node.is_a?(Nokogiri::XML::Text) && !node.content.strip.empty?
+              raise UnwrappableContentError.new "multiple text nodes in html markup" if text
+              text = node.content
+            else
+              nodes.concat node.children
+            end
+          end
+          [text, root_node.to_s.sub(text, "\\\\1")]
+        end
+
+        def wrap(text, index)
+          delimiter = "*" * index
+          "" << delimiter << text << delimiter
+        end
+
+        def infer_wrappers(source)
+          wrappers = []
+          [source, wrappers]
         end
       end
 
@@ -68,7 +127,7 @@ module I18nliner
           if string =~ BLOCK_EXPR_START
             translate = Regexp.last_match[:expression] == 't'
             push(string, translate) 
-          elsif string =~ BLOCK_EXPR_END
+          elsif string =~ BLOCK_EXPR_END # TODO: we get false positives here, e.g. `end` of an `if`
             pop(string)
           else
             append(string)

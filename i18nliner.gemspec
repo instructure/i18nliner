@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency('sexp_processor', '~> 4.4.0')
   s.add_dependency('globby', '>= 0.1.0')
   s.add_dependency('ya2yaml', '0.31')
+  s.add_dependency('nokogiri', '~> 1.5.0')
   s.add_development_dependency('debugger')
   s.add_development_dependency('rspec', '~> 2.14.0')
 end

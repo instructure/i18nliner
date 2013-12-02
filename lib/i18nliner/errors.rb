@@ -29,4 +29,5 @@ module I18nliner
 
   class BlockExprNestingError < StandardError; end
   class MalformedErbError < StandardError; end
+  class UnwrappableContentError < StandardError; end
 end

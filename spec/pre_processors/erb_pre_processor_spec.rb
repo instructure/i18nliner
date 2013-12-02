@@ -26,9 +26,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
           <input>
         <% end %>
         SOURCE
-
-      should ==
-        <<-EXPECTED
+      should == <<-EXPECTED
         <%= form_for do %>
           <%= t "Your Name" %>
           <input>
@@ -42,11 +40,28 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
     end
 
     it "should disallow nesting non-t block expressions in a t block expression" do
-      expect { process("<%= t { %><%= s { %>nope<% } %><% } %>")}.
+      expect { process("<%= t { %><%= s { %>nope<% } %><% } %>") }.
         to raise_error(I18nliner::BlockExprNestingError)
     end
-    it "should create wrappers for markup"
+
+    it "should create wrappers for markup" do
+      process(<<-SOURCE).
+        <%= t do %>
+          <b>bold</b>, or even <a href="#"><i><img>combos</i></a> get wrapper'd
+        <% end %>
+        SOURCE
+      should == <<-EXPECTED
+        <%= t "*bold*, or even **combos** get wrapper'd", {:wrappers=>["<b>\\\\1</b>", "<a href=\\\"#\\\"><i><img>\\\\1</i></a>"]} %>
+        EXPECTED
+    end
+
+    it "should not create wrappers for markup with multiple text nodes" do
+      expect { puts process("<%= t do %>this is <b><i>too</i> complicated</b><% end %>") }.
+        to raise_error(I18nliner::UnwrappableContentError)
+    end
+
     it "should create wrappers for link_to calls"
     it "should generate placeholders for inline expressions"
+    it "should generate placeholders for empty markup"
   end
 end
