@@ -1,5 +1,7 @@
 # I18nliner
 
+{<img src="https://secure.travis-ci.org/jenseng/i18nliner.png" />}[http://travis-ci.org/jenseng/i18nliner]
+
 yay readme-driven development!
 
 ## TODO
