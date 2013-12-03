@@ -27,7 +27,7 @@ module I18nliner
   class KeyAsScopeError < ExtractionError; end
   class KeyInUseError < ExtractionError; end
 
-  class BlockExprNestingError < StandardError; end
+  class TBlockNestingError < StandardError; end
   class MalformedErbError < StandardError; end
   class UnwrappableContentError < StandardError; end
 end

@@ -5,27 +5,52 @@ module I18nliner
   module PreProcessors
     class ErbPreProcessor
 
-      class Block
-        attr_reader :buffer
-        def initialize(string = '', translate = false)
-          @initial = string
-          @translate = translate
+      class Context
+        attr_reader :buffer, :parent
+
+        def initialize(parent = nil)
+          @parent = parent
           @buffer = ''
         end
 
-        def translate?
-          @translate
-        end
-
-        def close(terminator)
-          if translate?
-            inlinify
+        def <<(string)
+          if string =~ ERB_T_BLOCK_EXPRESSION
+            TBlock.new(self)
           else
-            '' << @initial << @buffer << terminator
+            @buffer << string
+            self
           end
         end
 
-        def inlinify
+        def result
+          @buffer
+        end
+      end
+
+      class TBlock < Context
+        def <<(string)
+          case string
+          when ERB_BLOCK_EXPRESSION
+            if string =~ ERB_T_BLOCK_EXPRESSION
+              TBlock.new(self)
+            else
+              raise TBlockNestingError.new("can't nest block expressions inside a t block")
+            end
+          #when ERB_EXPRESSION
+            # TODO: capture/transform it into placeholder
+          when ERB_STATEMENT
+            if string =~ ERB_END_STATEMENT
+              @parent << result
+            else
+              raise TBlockNestingError.new("can't nest statements inside a t block")
+            end
+          else
+            @buffer << string
+            self
+          end
+        end
+
+        def result
           default, options = normalize_call
           result = "<%= t "
           result << default.strip.inspect
@@ -37,7 +62,7 @@ module I18nliner
           default = ''
           options = {}
           wrappers = []
-          if @buffer =~ /<[^%]/
+          if @buffer =~ /</
             # TODO: expressions -> temp placeholders
             nodes = Nokogiri::HTML.fragment(@buffer).children
             nodes.each do |node|
@@ -85,32 +110,40 @@ module I18nliner
         end
       end
 
-      # need to evaluate all block expressions, so we can correctly
-      # match the start/end of the `t` block expression (including
-      # nested ones)
-      BLOCK_EXPR_START = /
+      # need to evaluate all expressions and statements, so we can
+      # correctly match the start/end of the `t` block expression
+      # (including nested ones)
+      ERB_EXPRESSION = /\A<%=/
+      ERB_BLOCK_EXPRESSION = /
+        \A
+        <%=
+        .*?
+        (\sdo|\{)
+        \s*
+        %>
+        \z
+      /x
+      ERB_T_BLOCK_EXPRESSION = /
+        \A
         <%=
         \s*
-        (?<expression>      (?: [^%] | %[^>] )+?)
-        \s*
-        (?<block_delimiter> do | \{ )
+        t
+        \s*?
+        (\(\)\s*)?
+        (\sdo|\{)
         \s*
         %>
-        /x
-      BLOCK_EXPR_END = /
+        \z
+      /x
+      ERB_STATEMENT = /\A<%[^=]/
+      ERB_END_STATEMENT = /
+        \A
         <%
         \s*
-        (?<block_delimiter> end | \} )
-        \s*
-        %>
-        /x
-      REMOVE_CAPTURES = /\(\?<[^>]+>/
-      BLOCK_EXPR = /
-        (
-          #{BLOCK_EXPR_START.to_s.gsub(REMOVE_CAPTURES, '(?:')} |
-          #{BLOCK_EXPR_END.to_s.gsub(REMOVE_CAPTURES, '(?:')}
-        )
+        (end|\})
+        (\W|%>\z)
       /x
+      ERB_TOKENIZER = /(<%.*?%>)/
 
       def self.process(source)
         new(source).result
@@ -121,45 +154,16 @@ module I18nliner
       end
 
       def result
-        # TODO the new plan:
+        # the basic idea:
         # 1. whenever we find a t block expr, go till we find the end
         # 2. if we find another t block expr before the end, goto step 1
         # 3. capture any inline expressions along the way
         # 4. if we find *any* other statement or block expr, abort,
         #    since it's a no-go
         # TODO get line numbers for errors
-        @stack = [Block.new]
-        @source.split(BLOCK_EXPR).each do |string|
-          if string =~ BLOCK_EXPR_START
-            translate = Regexp.last_match[:expression] == 't'
-            push(string, translate) 
-          elsif string =~ BLOCK_EXPR_END # TODO: we get false positives here, e.g. `end` of an `if`
-            pop(string)
-          else
-            append(string)
-          end
-        end
-        if @stack.size > 1
-          raise MalformedErbError.new('possibly unterminated block expression')
-        end
-        @stack.first.buffer
-      end
-
-      def push(string, translate)
-        if !translate && @stack.last.translate?
-          raise BlockExprNestingError.new("can't nest block expressions inside a t block")
-        end
-        block = Block.new(string, translate)
-        @stack.push block
-      end
-
-      def pop(string)
-        final = @stack.pop.close(string)
-        @stack.last.buffer << final
-      end
-
-      def append(string)
-        @stack.last.buffer << string
+        ctx = @source.split(ERB_TOKENIZER).inject(Context.new, :<<)
+        raise MalformedErbError.new('possibly unterminated block expression') if ctx.parent
+        ctx.result
       end
     end
   end

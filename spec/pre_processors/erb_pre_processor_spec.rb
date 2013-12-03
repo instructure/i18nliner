@@ -17,7 +17,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         '<%= t "ohai!" %>'
     end
 
-    it "should transform nested t block expressions"
+    it "should transform nested t block expressions in wrappers"
 
     it "should not translate other block expressions" do
       process(<<-SOURCE).
@@ -41,7 +41,12 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
 
     it "should disallow nesting non-t block expressions in a t block expression" do
       expect { process("<%= t { %><%= s { %>nope<% } %><% } %>") }.
-        to raise_error(I18nliner::BlockExprNestingError)
+        to raise_error(I18nliner::TBlockNestingError)
+    end
+
+    it "should disallow statements in a t block expression" do
+      expect { process("<%= t { %>I am <% if happy %>happy<% else %>sad<% end %><% } %>") }.
+        to raise_error(I18nliner::TBlockNestingError)
     end
 
     it "should create wrappers for markup" do
