@@ -10,6 +10,8 @@ yay readme-driven development!
 * ERB pre-processor
   * link_to wrapper inference
   * generate explicit keys for faster runtime
+  * pluralize block helper ... worth the trouble?
+* I18n.interpolate reimplementation for HTML safety
 * rake tasks
   * dump
   * diff
@@ -21,7 +23,7 @@ I18nliner is I18n made simple.
 
 No .yml files. Inline defaults. Optional keys. Inferred interpolation values.
 Wrappers and blocks, so your templates look template-y and your translations
-HTML-free.
+stay HTML-free.
 
 ## TL;DR
 
@@ -211,9 +213,11 @@ before it hits ERB:
 
 In other words, it will infer wrappers from your (balanced) markup and
 [`link_to` calls](INFERRED_WRAPPERS.md), and will create placeholders for any
-other ERB expressions. ERB statements (e.g.
-`<% if some_condition %>...`) are *not* supported inside block translations, with
-the notable exception of nested translations, e.g.
+other (inline) ERB expressions. ERB statements (e.g.
+`<% if some_condition %>...`) and block expressions (e.g.
+`<%= form_for @person do %>...`) are *not* supported within a block
+translation, The only exception to this rule is nested translation
+calls, e.g. this is totally fine:
 
     <%= t do %>
       Be sure to

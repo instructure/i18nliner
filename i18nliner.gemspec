@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.name = 'i18nliner'
   s.version = '0.0.1'
   s.summary = 'I18n made simple'
-  s.description = 'No .yml files. Inline defaults. Optional keys. Inferred interpolation values. Wrappers and blocks, so your templates look template-y and your translations HTML-free.'
+  s.description = 'No .yml files. Inline defaults. Optional keys. Inferred interpolation values. Wrappers and blocks, so your templates look template-y and your translations stay HTML-free.'
 
   s.required_ruby_version     = '>= 1.9.3'
   s.required_rubygems_version = '>= 1.3.5'
