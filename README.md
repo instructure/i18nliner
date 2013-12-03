@@ -8,8 +8,8 @@ yay readme-driven development!
 
 * inferred placeholders (instance vars and methods)
 * ERB pre-processor
-  * wrapper inference
-  * helper/placeholder extraction
+  * link_to wrapper inference
+  * generate explicit keys for faster runtime
 * rake tasks
   * dump
   * diff

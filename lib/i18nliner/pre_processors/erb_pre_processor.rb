@@ -36,8 +36,6 @@ module I18nliner
             else
               raise TBlockNestingError.new("can't nest block expressions inside a t block")
             end
-          #when ERB_EXPRESSION
-            # TODO: capture/transform it into placeholder
           when ERB_STATEMENT
             if string =~ ERB_END_STATEMENT
               @parent << result
@@ -45,44 +43,113 @@ module I18nliner
               raise TBlockNestingError.new("can't nest statements inside a t block")
             end
           else
+            # expressions and the like are handled a bit later
+            # TODO: perhaps a tad more efficient to capture/transform them
+            # here?
             @buffer << string
             self
           end
         end
 
         def result
-          default, options = normalize_call
+          default, options, wrappers = normalize_call
           result = "<%= t "
-          result << default.strip.inspect
-          result << ", " << options.inspect if options.size > 0
+          result << default
+          result << ", " << options if options
+          result << ", " << wrappers if wrappers
           result << " %>"
         end
 
+        # get a unique and reasonable looking key for a given erb
+        # expression
+        def infer_key(string, others)
+          key = string.downcase
+          key.gsub!(/[^a-z0-9]/, ' ')
+          key.strip!
+          key.gsub!(/ +/, '_')
+          key.slice!(20)
+          i = 0
+          base_key = key
+          while others.key?(key) && others[key] != string
+            key = "#{base_key}_#{i}"
+            i += 1
+          end
+          key
+        end
+
+        def extract_wrappers!(placeholder_map)
+          default = ''
+          wrappers = []
+          nodes = Nokogiri::HTML.fragment(@buffer).children
+          nodes.each do |node|
+            if node.is_a?(Nokogiri::XML::Text)
+              default << node.content
+            else
+              # TODO: handle standalone content (i.e. not wrappers, e.g.
+              # <input>)
+              text, wrapper = handle_node(node)
+              wrappers << prepare_wrapper(wrapper, placeholder_map)
+              default << wrap(text, wrappers.length)
+            end
+          end
+          [default, wrappers]
+        end
+
+        def prepare_wrapper(content, placeholder_map)
+          content = content.inspect
+          content.gsub!(TEMP_PLACEHOLDER) do |key|
+            '#{' + placeholder_map[key] + '}'
+          end
+          content
+        end
+
+        def extract_temp_placeholders!
+          extract_placeholders!(@buffer, ERB_EXPRESSION, false) do |str, map|
+            ["__I18NLINER_#{map.size}__", str]
+          end
+        end
+
+        def extract_placeholders!(buffer = @buffer, pattern = ERB_EXPRESSION, wrap_placeholder = true)
+          map = {}
+          buffer.gsub!(pattern) do |str|
+            key, str = yield($~[:content], map)
+            map[key] = str
+            wrap_placeholder ? "%{#{key}}" : key
+          end
+          map
+        end
+
+        TEMP_PLACEHOLDER = /(?<content>__I18NLINER_\d+__)/
         def normalize_call
           default = ''
           options = {}
           wrappers = []
           if @buffer =~ /</
-            # TODO: expressions -> temp placeholders
-            nodes = Nokogiri::HTML.fragment(@buffer).children
-            nodes.each do |node|
-              if node.is_a?(Nokogiri::XML::Text)
-                default << node.content
-              else
-                # TODO: handle standalone content (i.e. not wrappers,
-                # e.g. <input>)
-                text, wrapper = handle_node(node)
-                wrappers << wrapper
-                default << wrap(text, wrappers.length)
-              end
+            temp_map = extract_temp_placeholders!
+            default, wrappers = extract_wrappers!(temp_map)
+            options = extract_placeholders!(default, TEMP_PLACEHOLDER) do |str, map|
+              [temp_map[str], infer_key(temp_map[str], map)]
             end
-            # TODO: temp placeholders -> placeholders (+ wrappers)
           else
+            options = extract_placeholders!{ |str, map| [infer_key(str, map), str] }
             default << @buffer
-            # TODO: expressions -> placeholders (+ wrappers)
           end
-          options[:wrappers] = wrappers unless wrappers.empty?
-          [default, options]
+          default = default.strip.inspect
+          options = options_to_ruby(options)
+          wrappers = wrappers_to_ruby(wrappers)
+          [default, options, wrappers]
+        end
+
+        def options_to_ruby(options)
+          return if options.size == 0
+          options.map do |key, value|
+            ":" << key << " => (" << value << ")"
+          end.join(", ")
+        end
+
+        def wrappers_to_ruby(wrappers)
+          return if wrappers.size == 0
+          ":wrappers => [" << wrappers.join(", ") << "]"
         end
 
         def handle_node(root_node)
@@ -113,7 +180,7 @@ module I18nliner
       # need to evaluate all expressions and statements, so we can
       # correctly match the start/end of the `t` block expression
       # (including nested ones)
-      ERB_EXPRESSION = /\A<%=/
+      ERB_EXPRESSION = /<%=\s*(?<content>.*?)\s*%>/
       ERB_BLOCK_EXPRESSION = /
         \A
         <%=

@@ -17,8 +17,6 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         '<%= t "ohai!" %>'
     end
 
-    it "should transform nested t block expressions in wrappers"
-
     it "should not translate other block expressions" do
       process(<<-SOURCE).
         <%= form_for do %>
@@ -56,7 +54,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t "*bold*, or even **combos** get wrapper'd", {:wrappers=>["<b>\\\\1</b>", "<a href=\\\"#\\\"><i><img>\\\\1</i></a>"]} %>
+        <%= t "*bold*, or even **combos** get wrapper'd", :wrappers => ["<b>\\\\1</b>", "<a href=\\\"#\\\"><i><img>\\\\1</i></a>"] %>
         EXPECTED
     end
 
@@ -66,7 +64,43 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
     end
 
     it "should create wrappers for link_to calls"
-    it "should generate placeholders for inline expressions"
+
+    it "should generate placeholders for inline expressions" do
+      process(<<-SOURCE).
+        <%= t do %>
+          Hello, <%= name %>
+        <% end %>
+        SOURCE
+      should == <<-EXPECTED
+        <%= t "Hello, %{name}", :name => (name) %>
+        EXPECTED
+    end
+
+    it "should generate placeholders for inline expressions in wrappers" do
+      process(<<-SOURCE).
+        <%= t do %>
+          Go to <a href="/asdf" title="<%= name %>">your account</a>
+        <% end %>
+        SOURCE
+      should == <<-EXPECTED
+        <%= t "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{name}\\">\\\\1</a>"] %>
+      EXPECTED
+    end
+
+    # this is really the same as the one above, but it's good to have a
+    # spec for this in case the underlying implementation changes
+    # dramatically
+    it "should transform nested t block expressions in wrappers" do
+      process(<<-SOURCE).
+        <%= t do %>
+          Go to <a href="/asdf" title="<%= t do %>manage account stuffs, <%= name %><% end %>">your account</a>
+        <% end %>
+        SOURCE
+      should == <<-EXPECTED
+        <%= t "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{t \"manage account stuffs, %{name}\", :name => (name)}\\">\\\\1</a>"] %>
+      EXPECTED
+    end
+
     it "should generate placeholders for empty markup"
   end
 end
