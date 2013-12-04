@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'i18nliner/pre_processors/erb_pre_processor'
 require 'i18nliner/errors'
 
@@ -112,6 +113,15 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         EXPECTED
     end
 
-    it "should unescape entities"
+    it "should unescape entities" do
+      process(<<-SOURCE).
+        <%= t do %>
+          &copy; <%= year %> ACME Corp. All Rights Reserved. Our lawyers &gt; your lawyers
+        <% end %>
+        SOURCE
+      should == <<-EXPECTED
+        <%= t "© %{year} ACME Corp. All Rights Reserved. Our lawyers > your lawyers", :year => (year) %>
+        EXPECTED
+    end
   end
 end
