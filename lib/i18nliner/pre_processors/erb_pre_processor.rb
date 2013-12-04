@@ -64,6 +64,7 @@ module I18nliner
         # expression
         def infer_key(string, others)
           key = string.downcase
+          key.sub!(/\.html_safe\z/, '')
           key.gsub!(/[^a-z0-9]/, ' ')
           key.strip!
           key.gsub!(/ +/, '_')
@@ -84,12 +85,14 @@ module I18nliner
           nodes.each do |node|
             if node.is_a?(Nokogiri::XML::Text)
               default << node.content
-            else
-              # TODO: handle standalone content (i.e. not wrappers, e.g.
-              # <input>)
-              text, wrapper = handle_node(node)
+            elsif text = extract_text(node)
+              wrapper = node.to_s.sub(text, "\\\\1")
               wrappers << prepare_wrapper(wrapper, placeholder_map)
               default << wrap(text, wrappers.length)
+            else # no wrapped text (e.g. <input>)
+              key = "__I18NLINER_#{placeholder_map.size}__"
+              placeholder_map[key] = node.to_s.inspect << ".html_safe"
+              default << key
             end
           end
           [default, wrappers]
@@ -128,7 +131,7 @@ module I18nliner
             temp_map = extract_temp_placeholders!
             default, wrappers = extract_wrappers!(temp_map)
             options = extract_placeholders!(default, TEMP_PLACEHOLDER) do |str, map|
-              [temp_map[str], infer_key(temp_map[str], map)]
+              [infer_key(temp_map[str], map), temp_map[str]]
             end
           else
             options = extract_placeholders!{ |str, map| [infer_key(str, map), str] }
@@ -152,7 +155,7 @@ module I18nliner
           ":wrappers => [" << wrappers.join(", ") << "]"
         end
 
-        def handle_node(root_node)
+        def extract_text(root_node)
           text = nil
           nodes = root_node.children.to_a
           while node = nodes.shift
@@ -163,7 +166,7 @@ module I18nliner
               nodes.concat node.children
             end
           end
-          [text, root_node.to_s.sub(text, "\\\\1")]
+          text
         end
 
         def wrap(text, index)

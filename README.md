@@ -216,7 +216,7 @@ In other words, it will infer wrappers from your (balanced) markup and
 other (inline) ERB expressions. ERB statements (e.g.
 `<% if some_condition %>...`) and block expressions (e.g.
 `<%= form_for @person do %>...`) are *not* supported within a block
-translation, The only exception to this rule is nested translation
+translation. The only exception to this rule is nested translation
 calls, e.g. this is totally fine:
 
     <%= t do %>

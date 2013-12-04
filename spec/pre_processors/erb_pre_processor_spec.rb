@@ -84,7 +84,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         SOURCE
       should == <<-EXPECTED
         <%= t "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{name}\\">\\\\1</a>"] %>
-      EXPECTED
+        EXPECTED
     end
 
     # this is really the same as the one above, but it's good to have a
@@ -98,9 +98,20 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         SOURCE
       should == <<-EXPECTED
         <%= t "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{t \"manage account stuffs, %{name}\", :name => (name)}\\">\\\\1</a>"] %>
-      EXPECTED
+        EXPECTED
     end
 
-    it "should generate placeholders for empty markup"
+    it "should generate placeholders for empty markup" do
+      process(<<-SOURCE).
+        <%= t do %>
+          Create <input name="count"> groups
+        <% end %>
+        SOURCE
+      should == <<-EXPECTED
+        <%= t "Create %{input_name_count} groups", :input_name_count => ("<input name=\\"count\\">".html_safe) %>
+        EXPECTED
+    end
+
+    it "should unescape entities"
   end
 end
