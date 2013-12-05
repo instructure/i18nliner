@@ -1,5 +1,7 @@
 require 'i18nliner/errors'
 require 'nokogiri'
+require 'ruby_parser'
+require 'ruby2ruby'
 
 module I18nliner
   module PreProcessors
@@ -24,6 +26,56 @@ module I18nliner
 
         def result
           @buffer
+        end
+      end
+
+      class Helper
+        DEFINITIONS = [
+          {:method => :link_to, :pattern => /link_to/, :arg => 0}
+        ]
+        RUBY2RUBY = Ruby2Ruby.new
+        PARSER = RubyParser.new
+
+        def self.match_for(string)
+          DEFINITIONS.each do |info|
+            return Helper.new(info, string) if string =~ info[:pattern]
+          end
+          nil
+        end
+
+        attr_reader :placeholder, :wrapper
+        attr_accessor :content
+
+        def initialize(info, source)
+          @arg = info[:arg]
+          @method = info[:method]
+          @source = source
+        end
+
+        def wrappable?
+          return @wrappable if !@wrappable.nil?
+          begin
+            sexps = PARSER.parse(@source)
+            @wrappable = sexps.sexp_type == :call &&
+                         sexps[1].nil? &&
+                         sexps[2] == @method &&
+                         sexps[@arg + 3]
+            extract_content!(sexps) if @wrappable
+            @wrappable
+          end
+        end
+
+        def extract_content!(sexps)
+          # TODO: be nice and handle literal string concatenation (like in
+          # RubyExtractor)
+          sexp = sexps[@arg + 3]
+          if sexp.sexp_type == :str
+            @content = sexp.last
+          else
+            @placeholder = RUBY2RUBY.process(sexp)
+          end
+          sexps[@arg + 3] = Sexp.new(:str, "\\1")
+          @wrapper = RUBY2RUBY.process(sexps)
         end
       end
 
@@ -78,24 +130,46 @@ module I18nliner
           key
         end
 
-        def extract_wrappers!(placeholder_map)
+        def extract_wrappers!(source, wrappers, placeholder_map)
+          source = extract_html_wrappers!(source, wrappers, placeholder_map)
+          source = extract_helper_wrappers!(source, wrappers, placeholder_map)
+          source
+        end
+
+        # incidentally this converts entities to their corresponding values
+        def extract_html_wrappers!(source, wrappers, placeholder_map)
           default = ''
-          wrappers = []
-          nodes = Nokogiri::HTML.fragment(@buffer).children
+          nodes = Nokogiri::HTML.fragment(source).children
           nodes.each do |node|
             if node.is_a?(Nokogiri::XML::Text)
               default << node.content
             elsif text = extract_text(node)
               wrapper = node.to_s.sub(text, "\\\\1")
               wrappers << prepare_wrapper(wrapper, placeholder_map)
-              default << wrap(text, wrappers.length)
+              default << wrap(text, wrappers.size)
             else # no wrapped text (e.g. <input>)
               key = "__I18NLINER_#{placeholder_map.size}__"
               placeholder_map[key] = node.to_s.inspect << ".html_safe"
               default << key
             end
           end
-          [default, wrappers]
+          default
+        end
+
+        def extract_helper_wrappers!(source, wrappers, placeholder_map)
+          source.gsub(TEMP_PLACEHOLDER) do |string|
+            if (helper = Helper.match_for(placeholder_map[string])) && helper.wrappable?
+              placeholder_map.delete(string)
+              if helper.placeholder # e.g. link_to(name) -> *%{name}*
+                helper.content = "__I18NLINER_#{placeholder_map.size}__"
+                placeholder_map[helper.content] = helper.placeholder
+              end
+              wrappers << helper.wrapper
+              wrap(helper.content, wrappers.size)
+            else
+              string
+            end
+          end
         end
 
         def prepare_wrapper(content, placeholder_map)
@@ -127,16 +201,13 @@ module I18nliner
           default = ''
           options = {}
           wrappers = []
-          if @buffer =~ /</
-            temp_map = extract_temp_placeholders!
-            default, wrappers = extract_wrappers!(temp_map)
-            options = extract_placeholders!(default, TEMP_PLACEHOLDER) do |str, map|
-              [infer_key(temp_map[str], map), temp_map[str]]
-            end
-          else
-            options = extract_placeholders!{ |str, map| [infer_key(str, map), str] }
-            default << @buffer
+
+          temp_map = extract_temp_placeholders!
+          default = extract_wrappers!(@buffer, wrappers, temp_map)
+          options = extract_placeholders!(default, TEMP_PLACEHOLDER) do |str, map|
+            [infer_key(temp_map[str], map), temp_map[str]]
           end
+
           default = default.strip.inspect
           options = options_to_ruby(options)
           wrappers = wrappers_to_ruby(wrappers)

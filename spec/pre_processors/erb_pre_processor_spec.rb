@@ -64,7 +64,27 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         to raise_error(I18nliner::UnwrappableContentError)
     end
 
-    it "should create wrappers for link_to calls"
+    it "should create wrappers for link_to calls with string content" do
+      process(<<-SOURCE).
+        <%= t do %>
+          You should <%= link_to("create a profile", "/profile") %>
+        <% end %>
+        SOURCE
+      should == <<-EXPECTED
+        <%= t "You should *create a profile*", :wrappers => [link_to("\\\\1", "/profile")] %>
+        EXPECTED
+    end
+
+    it "should create wrappers for link_to calls with other content" do
+      process(<<-SOURCE).
+        <%= t do %>
+          Your account rep is <%= link_to(@user.name, "/user/\#{@user.id}") %>
+        <% end %>
+        SOURCE
+      should == <<-EXPECTED
+        <%= t "Your account rep is *%{user_name}*", :user_name => (@user.name), :wrappers => [link_to("\\\\1", "/user/\#{@user.id}")] %>
+        EXPECTED
+    end
 
     it "should generate placeholders for inline expressions" do
       process(<<-SOURCE).
