@@ -6,8 +6,10 @@ yay readme-driven development!
 
 ## TODO
 
-* inferred placeholders (instance vars and methods)
-* I18n.interpolate reimplementation for HTML safety
+* view `t` helper
+  * inferred placeholders (instance vars and methods)
+  * I18n.interpolate reimplementation for HTML safety
+* hook ERB pre_processor into rails ERB fu 
 * rake tasks
   * dump
   * diff
