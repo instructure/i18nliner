@@ -7,8 +7,6 @@ yay readme-driven development!
 ## TODO
 
 * inferred placeholders (instance vars and methods)
-* ERB pre-processor
-  * pluralize block helper ... worth the trouble?
 * I18n.interpolate reimplementation for HTML safety
 * rake tasks
   * dump
@@ -240,13 +238,7 @@ I18nliner brings this inline with a default translation hash, e.g.
       :count => picard.visible_lights.count)
 
 Note that the :count interpolation value needs to be explicitly set when doing
-pluralization. On the ERB side, I18nliner enhances pluralize to take a block,
-so you can do this:
-
-    <%= pluralize picard.visible_lights.count do %>
-      <% one do %>There is one light!<% end %>
-      <% other do %>There are <%= count %> lights!<% end %>
-    <% end %>
+pluralization.
 
 If you just want to pluralize a single word, there's a shortcut:
 
