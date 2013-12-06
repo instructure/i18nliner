@@ -80,6 +80,8 @@ module I18nliner
       end
 
       class TBlock < Context
+        include CallHelpers
+
         def <<(string)
           case string
           when ERB_BLOCK_EXPRESSION
@@ -104,9 +106,8 @@ module I18nliner
         end
 
         def result
-          default, options, wrappers = normalize_call
-          result = "<%= t "
-          result << default
+          key, default, options, wrappers = normalize_call
+          result = "<%= t :#{key}, #{default}"
           result << ", " << options if options
           result << ", " << wrappers if wrappers
           result << " %>"
@@ -114,7 +115,7 @@ module I18nliner
 
         # get a unique and reasonable looking key for a given erb
         # expression
-        def infer_key(string, others)
+        def infer_interpolation_key(string, others)
           key = string.downcase
           key.sub!(/\.html_safe\z/, '')
           key.gsub!(/[^a-z0-9]/, ' ')
@@ -175,7 +176,7 @@ module I18nliner
         def prepare_wrapper(content, placeholder_map)
           content = content.inspect
           content.gsub!(TEMP_PLACEHOLDER) do |key|
-            '#{' + placeholder_map[key] + '}'
+            "\#{#{placeholder_map[key]}}"
           end
           content
         end
@@ -198,20 +199,22 @@ module I18nliner
 
         TEMP_PLACEHOLDER = /(?<content>__I18NLINER_\d+__)/
         def normalize_call
-          default = ''
-          options = {}
           wrappers = []
 
           temp_map = extract_temp_placeholders!
           default = extract_wrappers!(@buffer, wrappers, temp_map)
           options = extract_placeholders!(default, TEMP_PLACEHOLDER) do |str, map|
-            [infer_key(temp_map[str], map), temp_map[str]]
+            [infer_interpolation_key(temp_map[str], map), temp_map[str]]
           end
 
-          default = default.strip.gsub(/\s+/, ' ').inspect
+          default.strip!
+          default.gsub!(/\s+/, ' ')
+
+          key = infer_key(default)
+          default = default.inspect
           options = options_to_ruby(options)
           wrappers = wrappers_to_ruby(wrappers)
-          [default, options, wrappers]
+          [key, default, options, wrappers]
         end
 
         def options_to_ruby(options)

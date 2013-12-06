@@ -31,16 +31,16 @@ module I18nliner
     end
 
     def keyify_underscored(string)
-      Iconv.iconv('ascii//translit//ignore', 'utf-8', string).
-        to_s.
-        downcase.
-        gsub(/[^a-z0-9_\.]+/, '_').
-        gsub(/\A_|_\z/, '')[0..50]
+      key = Iconv.iconv('ascii//translit//ignore', 'utf-8', string).to_s
+      key.downcase!
+      key.gsub!(/[^a-z0-9_]+/, '_')
+      key.gsub!(/\A_|_\z/, '')
+      key[0..50]
     end
 
     def keyify_underscored_crc32(string)
-      checksum = Zlib.crc32(string.size.to_s + ":" + string).to_s(16) 
-      keyify_underscored(string) + "_#{checksum}"
+      checksum = Zlib.crc32("#{string.size.to_s}:#{string}").to_s(16)
+      "#{keyify_underscored(string)}_#{checksum}"
     end
 
     def keyify(string)

@@ -8,7 +8,6 @@ yay readme-driven development!
 
 * inferred placeholders (instance vars and methods)
 * ERB pre-processor
-  * generate explicit keys for faster runtime
   * pluralize block helper ... worth the trouble?
 * I18n.interpolate reimplementation for HTML safety
 * rake tasks

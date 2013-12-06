@@ -10,12 +10,12 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
 
     it "should transform t block expressions" do
       process("<%= t do %>hello world!<% end %>").should ==
-        '<%= t "hello world!" %>'
+        '<%= t :hello_world_ad7076cc, "hello world!" %>'
     end
 
     it "should remove extraneous whitespace" do
       process("<%= t do %> ohai!\n lulz\t <% end %>").should ==
-        '<%= t "ohai! lulz" %>'
+        '<%= t :ohai_lulz_992c25f8, "ohai! lulz" %>'
     end
 
     it "should not translate other block expressions" do
@@ -27,7 +27,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         SOURCE
       should == <<-EXPECTED
         <%= form_for do %>
-          <%= t "Your Name" %>
+          <%= t :your_name_7665e1d8, "Your Name" %>
           <input>
         <% end %>
         EXPECTED
@@ -55,7 +55,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t "*bold*, or even **combos** get wrapper'd", :wrappers => ["<b>\\\\1</b>", "<a href=\\\"#\\\"><i><img>\\\\1</i></a>"] %>
+        <%= t :bold_or_even_combos_get_wrapper_d_17fcc6e, "*bold*, or even **combos** get wrapper'd", :wrappers => ["<b>\\\\1</b>", "<a href=\\\"#\\\"><i><img>\\\\1</i></a>"] %>
         EXPECTED
     end
 
@@ -71,7 +71,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t "You should *create a profile*", :wrappers => [link_to("\\\\1", "/profile")] %>
+        <%= t :you_should_create_a_profile_1d1e96d5, "You should *create a profile*", :wrappers => [link_to("\\\\1", "/profile")] %>
         EXPECTED
     end
 
@@ -82,7 +82,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t "Your account rep is *%{user_name}*", :user_name => (@user.name), :wrappers => [link_to("\\\\1", "/user/\#{@user.id}")] %>
+        <%= t :your_account_rep_is_user_name_f17470cd, "Your account rep is *%{user_name}*", :user_name => (@user.name), :wrappers => [link_to("\\\\1", "/user/\#{@user.id}")] %>
         EXPECTED
     end
 
@@ -93,7 +93,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t "Hello, %{name}", :name => (name) %>
+        <%= t :hello_name_7d06d559, "Hello, %{name}", :name => (name) %>
         EXPECTED
     end
 
@@ -104,7 +104,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{name}\\">\\\\1</a>"] %>
+        <%= t :go_to_your_account_1379b368, "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{name}\\">\\\\1</a>"] %>
         EXPECTED
     end
 
@@ -118,7 +118,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{t \"manage account stuffs, %{name}\", :name => (name)}\\">\\\\1</a>"] %>
+        <%= t :go_to_your_account_1379b368, "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{t :manage_account_stuffs_name_6705efd9, \"manage account stuffs, %{name}\", :name => (name)}\\">\\\\1</a>"] %>
         EXPECTED
     end
 
@@ -129,7 +129,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t "Create %{input_name_count} groups", :input_name_count => ("<input name=\\"count\\">".html_safe) %>
+        <%= t :create_input_name_count_groups_c0f9b227, "Create %{input_name_count} groups", :input_name_count => ("<input name=\\"count\\">".html_safe) %>
         EXPECTED
     end
 
@@ -140,7 +140,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t "© %{year} ACME Corp. All Rights Reserved. Our lawyers > your lawyers", :year => (year) %>
+        <%= t :c_year_acme_corp_all_rights_reserved_our_lawyers_yo_c8062765, "© %{year} ACME Corp. All Rights Reserved. Our lawyers > your lawyers", :year => (year) %>
         EXPECTED
     end
   end
