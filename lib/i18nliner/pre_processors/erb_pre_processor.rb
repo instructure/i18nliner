@@ -208,7 +208,7 @@ module I18nliner
             [infer_key(temp_map[str], map), temp_map[str]]
           end
 
-          default = default.strip.inspect
+          default = default.strip.gsub(/\s+/, ' ').inspect
           options = options_to_ruby(options)
           wrappers = wrappers_to_ruby(wrappers)
           [default, options, wrappers]

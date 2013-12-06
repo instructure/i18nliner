@@ -201,7 +201,7 @@ before it hits ERB:
     <p>
       <%= t :some_unique_key,
             "*Ohai %{user_name}*, you can **lead** a new discussion or ***join*** an existing one.",
-            :user_name => @user.name,
+            :user_name => user.name,
             :wrappers => [
               '<b>\1</b>',
               link_to('\1', new_discussion_path),

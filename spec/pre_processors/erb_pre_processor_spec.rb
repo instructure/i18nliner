@@ -13,9 +13,9 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         '<%= t "hello world!" %>'
     end
 
-    it "should strip whitespace from the translation" do
-      process("<%= t do %> ohai!  <% end %>").should ==
-        '<%= t "ohai!" %>'
+    it "should remove extraneous whitespace" do
+      process("<%= t do %> ohai!\n lulz\t <% end %>").should ==
+        '<%= t "ohai! lulz" %>'
     end
 
     it "should not translate other block expressions" do
