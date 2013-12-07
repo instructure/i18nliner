@@ -1,9 +1,9 @@
-module I18nLine
+module I18nliner
   module Extractors
     class TranslationHash < Hash
       attr_accessor :line
 
-      def self.new(hash)
+      def self.new(hash = nil)
         hash.is_a?(self) ? hash : super
       end
   
@@ -23,7 +23,7 @@ module I18nLine
               raise KeyAsScopeError, intermediate_key
             end
           else
-            hash[part] = {}
+            hash.store(part, {})
           end
           hash = hash[part]
         end
@@ -37,7 +37,7 @@ module I18nLine
           end
         else
           @total_size += 1
-          hash[key] = value
+          hash.store(key, value)
         end
       end
     end

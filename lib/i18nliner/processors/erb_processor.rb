@@ -1,9 +1,13 @@
+require 'erubis'
+require 'i18nliner/processors/ruby_processor'
+require 'i18nliner/pre_processors/erb_pre_processor'
+
 module I18nliner
   module Processors
     class ErbProcessor < RubyProcessor
-      def source_for(file)
-        # TODO: pre-process for block fu
-        Erubis::Eruby.new(super).src
+      def pre_process(source)
+        source = PreProcessors::ErbPreProcessor.process(source)
+        Erubis::Eruby.new(source).src
       end
 
       def scope_for(path)

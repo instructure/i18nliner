@@ -1,3 +1,5 @@
+require 'i18nliner/processors'
+
 module I18nliner
   module Processors
     class AbstractProcessor
@@ -23,6 +25,10 @@ module I18nliner
         files.each do |file|
           @checker.call file, &methods(:check_file)
         end
+      end
+
+      def check_file(file)
+        check_contents source_for(file), scope_for(file)
       end
 
       def self.inherited(klass)
