@@ -141,6 +141,15 @@ module I18nliner
           source
         end
 
+        
+        def find_or_add_wrapper(wrapper, wrappers)
+          unless pos = wrappers.index(wrapper)
+            pos = wrappers.size
+            wrappers << wrapper
+          end
+          pos
+        end
+        
         # incidentally this converts entities to their corresponding values
         def extract_html_wrappers!(source, wrappers, placeholder_map)
           default = ''
@@ -150,8 +159,9 @@ module I18nliner
               default << node.content
             elsif text = extract_text(node)
               wrapper = node.to_s.sub(text, "\\\\1")
-              wrappers << prepare_wrapper(wrapper, placeholder_map)
-              default << wrap(text, wrappers.size)
+              wrapper = prepare_wrapper(wrapper, placeholder_map)
+              pos = find_or_add_wrapper(wrapper, wrappers)
+              default << wrap(text, pos + 1)
             else # no wrapped text (e.g. <input>)
               key = "__I18NLINER_#{placeholder_map.size}__"
               placeholder_map[key] = node.to_s.inspect << ".html_safe"
@@ -169,8 +179,8 @@ module I18nliner
                 helper.content = "__I18NLINER_#{placeholder_map.size}__"
                 placeholder_map[helper.content] = helper.placeholder
               end
-              wrappers << helper.wrapper
-              wrap(helper.content, wrappers.size)
+              pos = find_or_add_wrapper(helper.wrapper, wrappers)
+              wrap(helper.content, pos + 1)
             else
               string
             end

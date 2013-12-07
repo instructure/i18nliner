@@ -91,6 +91,20 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         EXPECTED
     end
 
+    it "should reuse identical wrappers" do
+      process(<<-SOURCE).
+        <%= t do %>
+          the wrappers for
+          <%= link_to "these", url %> <%= link_to "links", url %> are the same,
+          as are the ones for
+          <b>these</b> <b>tags</b>
+        <% end %>
+        SOURCE
+      should == <<-EXPECTED
+        <%= t :key, "the wrappers for **these** **links** are the same, as are the ones for *these* *tags*", :wrappers => ["<b>\\\\1</b>", link_to("\\\\1", url)] %>
+        EXPECTED
+    end
+
     it "should generate placeholders for inline expressions" do
       process(<<-SOURCE).
         <%= t do %>
