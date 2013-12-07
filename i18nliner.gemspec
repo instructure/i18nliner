@@ -24,4 +24,5 @@ Gem::Specification.new do |s|
   s.add_dependency('nokogiri', '~> 1.5.0')
   s.add_development_dependency('debugger')
   s.add_development_dependency('rspec', '~> 2.14.0')
+  s.add_development_dependency('rspec-mocks', '~> 2.14.0')
 end

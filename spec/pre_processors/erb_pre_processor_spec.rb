@@ -3,6 +3,10 @@ require 'i18nliner/pre_processors/erb_pre_processor'
 require 'i18nliner/errors'
 
 describe I18nliner::PreProcessors::ErbPreProcessor do
+  before do
+    I18nliner::PreProcessors::ErbPreProcessor::TBlock.any_instance.stub(:infer_key).and_return(:key)
+  end
+
   describe ".process" do
     def process(string)
       I18nliner::PreProcessors::ErbPreProcessor.process(string)
@@ -10,12 +14,12 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
 
     it "should transform t block expressions" do
       process("<%= t do %>hello world!<% end %>").should ==
-        '<%= t :hello_world_ad7076cc, "hello world!" %>'
+        '<%= t :key, "hello world!" %>'
     end
 
     it "should remove extraneous whitespace" do
       process("<%= t do %> ohai!\n lulz\t <% end %>").should ==
-        '<%= t :ohai_lulz_992c25f8, "ohai! lulz" %>'
+        '<%= t :key, "ohai! lulz" %>'
     end
 
     it "should not translate other block expressions" do
@@ -27,7 +31,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         SOURCE
       should == <<-EXPECTED
         <%= form_for do %>
-          <%= t :your_name_7665e1d8, "Your Name" %>
+          <%= t :key, "Your Name" %>
           <input>
         <% end %>
         EXPECTED
@@ -55,7 +59,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :bold_or_even_combos_get_wrapper_d_17fcc6e, "*bold*, or even **combos** get wrapper'd", :wrappers => ["<b>\\\\1</b>", "<a href=\\\"#\\\"><i><img>\\\\1</i></a>"] %>
+        <%= t :key, "*bold*, or even **combos** get wrapper'd", :wrappers => ["<b>\\\\1</b>", "<a href=\\\"#\\\"><i><img>\\\\1</i></a>"] %>
         EXPECTED
     end
 
@@ -71,7 +75,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :you_should_create_a_profile_1d1e96d5, "You should *create a profile*", :wrappers => [link_to("\\\\1", "/profile")] %>
+        <%= t :key, "You should *create a profile*", :wrappers => [link_to("\\\\1", "/profile")] %>
         EXPECTED
     end
 
@@ -82,7 +86,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :your_account_rep_is_user_name_f17470cd, "Your account rep is *%{user_name}*", :user_name => (@user.name), :wrappers => [link_to("\\\\1", "/user/\#{@user.id}")] %>
+        <%= t :key, "Your account rep is *%{user_name}*", :user_name => (@user.name), :wrappers => [link_to("\\\\1", "/user/\#{@user.id}")] %>
         EXPECTED
     end
 
@@ -93,7 +97,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :hello_name_7d06d559, "Hello, %{name}", :name => (name) %>
+        <%= t :key, "Hello, %{name}", :name => (name) %>
         EXPECTED
     end
 
@@ -104,7 +108,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :go_to_your_account_1379b368, "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{name}\\">\\\\1</a>"] %>
+        <%= t :key, "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{name}\\">\\\\1</a>"] %>
         EXPECTED
     end
 
@@ -118,7 +122,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :go_to_your_account_1379b368, "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{t :manage_account_stuffs_name_6705efd9, \"manage account stuffs, %{name}\", :name => (name)}\\">\\\\1</a>"] %>
+        <%= t :key, "Go to *your account*", :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{t :key, \"manage account stuffs, %{name}\", :name => (name)}\\">\\\\1</a>"] %>
         EXPECTED
     end
 
@@ -129,7 +133,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :create_input_name_count_groups_c0f9b227, "Create %{input_name_count} groups", :input_name_count => ("<input name=\\"count\\">".html_safe) %>
+        <%= t :key, "Create %{input_name_count} groups", :input_name_count => ("<input name=\\"count\\">".html_safe) %>
         EXPECTED
     end
 
@@ -140,7 +144,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :c_year_acme_corp_all_rights_reserved_our_lawyers_yo_c8062765, "© %{year} ACME Corp. All Rights Reserved. Our lawyers > your lawyers", :year => (year) %>
+        <%= t :key, "© %{year} ACME Corp. All Rights Reserved. Our lawyers > your lawyers", :year => (year) %>
         EXPECTED
     end
   end
