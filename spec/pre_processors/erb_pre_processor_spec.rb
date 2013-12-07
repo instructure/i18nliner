@@ -71,11 +71,12 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
     it "should create wrappers for link_to calls with string content" do
       process(<<-SOURCE).
         <%= t do %>
-          You should <%= link_to("create a profile", "/profile") %>
+          You should <%= link_to("create a profile", "/profile") %>.
+          idk why <%= link_to "this " + "link", "/zomg" %> has concatention
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :key, "You should *create a profile*", :wrappers => [link_to("\\\\1", "/profile")] %>
+        <%= t :key, "You should *create a profile*. idk why **this link** has concatention", :wrappers => [link_to("\\\\1", "/profile"), link_to("\\\\1", "/zomg")] %>
         EXPECTED
     end
 

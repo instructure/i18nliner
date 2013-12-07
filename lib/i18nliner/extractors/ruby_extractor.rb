@@ -1,10 +1,13 @@
 require 'sexp_processor'
 require 'i18nliner/errors'
 require 'i18nliner/extractors/translate_call'
+require 'i18nliner/extractors/sexp_helper'
 
 module I18nliner
   module Extractors
     class RubyExtractor < ::SexpProcessor
+      include SexpHelper
+
       TRANSLATE_CALLS = [:t, :translate]
       attr_reader :current_line
 
@@ -73,34 +76,11 @@ module I18nliner
         UnsupportedExpression
       end
 
-      def string_concatenation?(exp)
-        exp.sexp_type == :call &&
-        exp[2] == :+ &&
-        exp.last &&
-        exp.last.sexp_type == :str
-      end
-
-      def string_from(exp)
-        exp.shift
-        lhs = exp.shift
-        exp.shift
-        rhs = exp.shift
-        if lhs.sexp_type == :str
-          lhs.last + rhs.last
-        elsif string_concatenation?(lhs)
-          string_from(lhs) + rhs.last
-        else
-          return UnsupportedExpression
-        end
-      end
-
       def hash_from(exp)
         exp.shift
         values = exp.map{ |e| evaluate_expression(e) }
         Hash[*values]
       end
     end
-
-    class UnsupportedExpression; end
   end
 end

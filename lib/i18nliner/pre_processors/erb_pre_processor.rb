@@ -1,4 +1,5 @@
 require 'i18nliner/errors'
+require 'i18nliner/extractors/sexp_helper'
 require 'nokogiri'
 require 'ruby_parser'
 require 'ruby2ruby'
@@ -30,6 +31,8 @@ module I18nliner
       end
 
       class Helper
+        include Extractors::SexpHelper
+
         DEFINITIONS = [
           {:method => :link_to, :pattern => /link_to/, :arg => 0}
         ]
@@ -52,6 +55,7 @@ module I18nliner
           @source = source
         end
 
+        SEXP_ARG_OFFSET = 3
         def wrappable?
           return @wrappable if !@wrappable.nil?
           begin
@@ -59,22 +63,22 @@ module I18nliner
             @wrappable = sexps.sexp_type == :call &&
                          sexps[1].nil? &&
                          sexps[2] == @method &&
-                         sexps[@arg + 3]
+                         sexps[@arg + SEXP_ARG_OFFSET]
             extract_content!(sexps) if @wrappable
             @wrappable
           end
         end
 
         def extract_content!(sexps)
-          # TODO: be nice and handle literal string concatenation (like in
-          # RubyExtractor)
-          sexp = sexps[@arg + 3]
+          sexp = sexps[@arg + SEXP_ARG_OFFSET]
           if sexp.sexp_type == :str
             @content = sexp.last
+          elsif string_concatenation?(sexp)
+            @content = string_from(sexp)
           else
             @placeholder = RUBY2RUBY.process(sexp)
           end
-          sexps[@arg + 3] = Sexp.new(:str, "\\1")
+          sexps[@arg + SEXP_ARG_OFFSET] = Sexp.new(:str, "\\1")
           @wrapper = RUBY2RUBY.process(sexps)
         end
       end
