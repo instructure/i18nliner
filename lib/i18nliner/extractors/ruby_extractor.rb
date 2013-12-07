@@ -66,11 +66,8 @@ module I18nliner
       end
 
       def evaluate_expression(exp)
-        if exp.sexp_type == :lit || exp.sexp_type == :str
-          exp.shift
-          return exp.shift
-        end
-        return string_from(exp) if string_concatenation?(exp)
+        return raw(exp) if exp.sexp_type == :lit
+        return string_from(exp) if stringish?(exp)
         return hash_from(exp) if exp.sexp_type == :hash
         process(exp)
         UnsupportedExpression

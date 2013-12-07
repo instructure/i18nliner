@@ -71,9 +71,7 @@ module I18nliner
 
         def extract_content!(sexps)
           sexp = sexps[@arg + SEXP_ARG_OFFSET]
-          if sexp.sexp_type == :str
-            @content = sexp.last
-          elsif string_concatenation?(sexp)
+          if stringish?(sexp)
             @content = string_from(sexp)
           else
             @placeholder = RUBY2RUBY.process(sexp)
