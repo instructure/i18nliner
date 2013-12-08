@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'i18nliner'
 require 'i18nliner/scope'
 require 'i18nliner/extractors/translate_call'
@@ -63,6 +64,26 @@ describe I18nliner::Extractors::TranslateCall do
         call(no_scope, "zOmg key!!").translations.should ==
           [["zomg_key", "zOmg key!!"]]
       end
+    end
+
+    it "should transliterate underscored keys according to the default locale" do
+      orig_locale = I18n.default_locale
+      I18n.backend.store_translations(:de, :i18n => {
+        :transliterate => {
+          :rule => {
+            "ü" => "ue",
+            "ö" => "oe"
+          }
+        }
+      })
+
+      I18nliner.inferred_key_format :underscored do
+        I18n.default_locale = :en
+        call(no_scope, "Jürgen").translations[0][0].should == "jurgen"
+        I18n.default_locale = :de
+        call(no_scope, "Jürgen").translations[0][0].should == "juergen"
+      end
+      I18n.default_locale = orig_locale
     end
 
     it "should generate underscored + crc32 keys" do

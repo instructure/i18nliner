@@ -1,5 +1,5 @@
-require 'iconv'
 require 'zlib'
+require 'i18n'
 require 'i18nliner'
 
 module I18nliner
@@ -30,7 +30,7 @@ module I18nliner
     end
 
     def keyify_underscored(string)
-      key = Iconv.iconv('ascii//translit//ignore', 'utf-8', string).to_s
+      key = I18n.transliterate(string, :locale => I18n.default_locale).to_s
       key.downcase!
       key.gsub!(/[^a-z0-9_]+/, '_')
       key.gsub!(/\A_|_\z/, '')
