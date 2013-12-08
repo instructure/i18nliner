@@ -7,10 +7,9 @@ module I18nliner
     class TranslateCall
       include CallHelpers
 
-      def initialize(scope, line, receiver, method, args)
+      def initialize(scope, line, method, args)
         @scope = scope
         @line = line
-        @receiver = receiver
         @method = method
 
         normalize_arguments(args)
@@ -26,7 +25,7 @@ module I18nliner
       end
 
       def normalize
-        @key = normalize_key(@key, @scope, @receiver)
+        @key = normalize_key(@key, @scope)
         @default = normalize_default(@default, @options || {})
       end
 
@@ -76,13 +75,7 @@ module I18nliner
       def normalize_arguments(args)
         raise InvalidSignatureError.new(@line, args) if args.empty?
 
-        has_key = key_provided?(@scope, @receiver, *args)
-        args.unshift infer_key(args[0]) if !has_key && args[0].is_a?(String) || args[0].is_a?(Hash)
-
-        # [key, options] -> [key, nil, options]
-        args.insert(1, nil) if has_key && args[1].is_a?(Hash) && args[2].nil?
-
-        @key, @default, @options, *others = args
+        @key, @default, @options, *others = infer_arguments(@scope, args)
 
         raise InvalidSignatureError.new(@line, args) if !others.empty?
         raise InvalidSignatureError.new(@line, args) unless @key.is_a?(Symbol) || @key.is_a?(String)

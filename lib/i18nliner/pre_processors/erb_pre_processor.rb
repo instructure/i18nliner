@@ -1,4 +1,5 @@
 require 'i18nliner/errors'
+require 'i18nliner/call_helpers'
 require 'i18nliner/extractors/sexp_helper'
 require 'nokogiri'
 require 'ruby_parser'

@@ -7,9 +7,8 @@ module I18nliner
     ALLOWED_PLURALIZATION_KEYS = [:zero, :one, :few, :many, :other]
     REQUIRED_PLURALIZATION_KEYS = [:one, :other]
 
-    def normalize_key(key, scope, receiver)
-      key = key.to_s
-      scope.normalize_key(key)
+    def normalize_key(key, scope = Scope.root)
+      scope.normalize_key(key.to_s)
     end
 
     def normalize_default(default, translate_options = {})
@@ -58,13 +57,22 @@ module I18nliner
     # key, default_hash, options
     # default_string [, options]
     # default_hash, options
-    def key_provided?(scope, receiver, key_or_default = nil, default_or_options = nil, maybe_options = nil, *others)
+    def key_provided?(scope, key_or_default = nil, default_or_options = nil, maybe_options = nil, *others)
       return false if key_or_default.is_a?(Hash)
       return true if key_or_default.is_a?(Symbol)
       return true if default_or_options.is_a?(String)
       return true if maybe_options
-      return true if I18nliner.look_up(normalize_key(key_or_default, scope, receiver))
+      return true if I18nliner.look_up(normalize_key(key_or_default, scope))
       false
+    end
+
+    def infer_arguments(scope, args)
+      has_key = key_provided?(scope, *args)
+      args.unshift infer_key(args[0]) if !has_key && (args[0].is_a?(String) || args[0].is_a?(Hash))
+
+      # [key, options] -> [key, nil, options]
+      args.insert(1, nil) if has_key && args[1].is_a?(Hash) && args[2].nil?
+      args
     end
   end
 end

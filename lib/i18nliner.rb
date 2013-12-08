@@ -1,8 +1,11 @@
+require 'i18n'
+
 module I18nliner
   def self.translations
   end
 
-  def self.look_up(*args)
+  def self.look_up(key)
+    I18n.exists?(I18n.locale, key)
   end
 
   def self.setting(key, value)

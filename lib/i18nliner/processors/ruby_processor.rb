@@ -1,4 +1,6 @@
 require 'i18nliner/processors/abstract_processor'
+require 'i18nliner/extractors/ruby_extractor'
+require 'i18nliner/scope'
 
 module I18nliner
   module Processors

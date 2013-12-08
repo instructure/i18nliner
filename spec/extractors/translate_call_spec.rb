@@ -4,7 +4,7 @@ require 'i18nliner/extractors/translate_call'
 
 describe I18nliner::Extractors::TranslateCall do
   def call(scope, *args)
-    I18nliner::Extractors::TranslateCall.new(scope, nil, nil, :t, args)
+    I18nliner::Extractors::TranslateCall.new(scope, nil, :t, args)
   end
 
   let(:no_scope) { I18nliner::Scope.new(nil) }
