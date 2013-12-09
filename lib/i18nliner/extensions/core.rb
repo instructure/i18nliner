@@ -19,6 +19,26 @@ module I18nliner
       end
       alias :t :translate
 
+      # can't super this one yet :-/
+      def interpolate_hash_with_html_safety(string, values)
+        if string.html_safe? || values.values.any?(&:html_safe?)
+          string = ERB::Util.h(string) unless string.html_safe?
+          values.each do |key, value|
+            values[key] = ERB::Util.h(value) unless value.html_safe?
+          end
+          interpolate_hash_without_html_safety(string.to_str, values).html_safe
+        else
+          interpolate_hash_without_html_safety(string, values)
+        end
+      end
+
+      def self.extended(base)
+        base.instance_eval do
+          alias :interpolate_hash_without_html_safety :interpolate_hash
+          alias :interpolate_hash :interpolate_hash_with_html_safety
+        end
+      end
+
      private
 
       def apply_wrappers(string, wrappers)
