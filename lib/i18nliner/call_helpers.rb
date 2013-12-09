@@ -1,6 +1,6 @@
 require 'zlib'
 require 'i18n'
-require 'i18nliner'
+require 'i18nliner/base'
 
 module I18nliner
   module CallHelpers

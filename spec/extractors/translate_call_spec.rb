@@ -1,5 +1,5 @@
 # encoding: UTF-8
-require 'i18nliner'
+require 'i18nliner/base'
 require 'i18nliner/scope'
 require 'i18nliner/extractors/translate_call'
 
