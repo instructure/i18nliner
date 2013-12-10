@@ -5,10 +5,8 @@ require 'active_support/core_ext/string/output_safety'
 module I18nliner
   module Extensions
     module Core
-      include CallHelpers
-
       def translate(*args)
-        key, options = *infer_arguments(args)
+        key, options = *CallHelpers.infer_arguments(args)
         wrappers = options.delete(:wrappers)
         result = super(key, options)
         if wrappers

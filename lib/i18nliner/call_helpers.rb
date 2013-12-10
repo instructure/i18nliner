@@ -73,6 +73,10 @@ module I18nliner
     end
 
     def infer_arguments(args)
+      if args.size == 2 && args[1].is_a?(Hash) && args[1][:default]
+        return args
+      end
+
       has_key = key_provided?(*args)
       if !has_key && (args[0].is_a?(String) || args[0].is_a?(Hash))
         args.unshift infer_key(args[0])
@@ -85,5 +89,7 @@ module I18nliner
       end
       args
     end
+
+    extend self
   end
 end

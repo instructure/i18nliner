@@ -6,8 +6,6 @@ yay readme-driven development!
 
 ## TODO
 
-* view (and model/controller/etc) `t` helper
-  * inferred placeholders (instance vars and methods)
 * hook ERB pre_processor into rails ERB fu 
 * rake tasks
   * dump
