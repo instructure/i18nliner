@@ -57,23 +57,31 @@ module I18nliner
     # key, default_hash, options
     # default_string [, options]
     # default_hash, options
-    def key_provided?(scope, key_or_default = nil, default_or_options = nil, maybe_options = nil, *others)
+    def key_provided?(key_or_default = nil, default_or_options = nil, maybe_options = nil, *others)
       return false if key_or_default.is_a?(Hash)
       return true if key_or_default.is_a?(Symbol)
       return true if default_or_options.is_a?(String)
       return true if maybe_options
-      return true if I18nliner.look_up(normalize_key(key_or_default, scope))
+      return true if key_or_default =~ /\A\.?(\w+\.)+\w+\z/
       false
     end
 
-    def infer_arguments(scope, args)
-      has_key = key_provided?(scope, *args)
-      args.unshift infer_key(args[0]) if !has_key && (args[0].is_a?(String) || args[0].is_a?(Hash))
+    def pluralization_hash?(hash)
+      hash.is_a?(Hash) &&
+      hash.size > 0 &&
+      (hash.keys - ALLOWED_PLURALIZATION_KEYS).size == 0
+    end
 
-      # [key, options] -> [key, nil_or_default, options]
-      if has_key && args[1].is_a?(Hash) && args[2].nil?
-        default = args[1].delete(:default)
-        args.insert(1, default)
+    def infer_arguments(args)
+      has_key = key_provided?(*args)
+      if !has_key && (args[0].is_a?(String) || args[0].is_a?(Hash))
+        args.unshift infer_key(args[0])
+      end
+
+      default_or_options = args[1]
+      if args[2] || default_or_options.is_a?(String) || pluralization_hash?(default_or_options)
+        options = args[2] ||= {}
+        options[:default] = args.delete_at(1) if options.is_a?(Hash)
       end
       args
     end

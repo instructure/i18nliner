@@ -1,4 +1,5 @@
 require 'active_support/core_ext/string/inflections'
+require 'i18nliner/base'
 require 'i18nliner/call_helpers'
 require 'i18nliner/errors'
 
@@ -77,12 +78,13 @@ module I18nliner
       def normalize_arguments(args)
         raise InvalidSignatureError.new(@line, args) if args.empty?
 
-        @key, @default, @options, *others = infer_arguments(@scope, args)
+        @key, @options, *others = infer_arguments(args)
 
         raise InvalidSignatureError.new(@line, args) if !others.empty?
         raise InvalidSignatureError.new(@line, args) unless @key.is_a?(Symbol) || @key.is_a?(String)
-        raise InvalidSignatureError.new(@line, args) unless @default.nil? || @default.is_a?(String) || @default.is_a?(Hash)
         raise InvalidSignatureError.new(@line, args) unless @options.nil? || @options.is_a?(Hash)
+        @default = @options.delete(:default) if @options
+        raise InvalidSignatureError.new(@line, args) unless @default.nil? || @default.is_a?(String) || @default.is_a?(Hash)
       end
 
       def validate_interpolation_values(key, default)

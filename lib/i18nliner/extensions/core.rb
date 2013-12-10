@@ -8,10 +8,9 @@ module I18nliner
       include CallHelpers
 
       def translate(*args)
-        key, default, options = *infer_arguments(Scope.root, args)
+        key, options = *infer_arguments(args)
         wrappers = options.delete(:wrappers)
-        options ||= {}
-        result = super(key, options.merge(:default => default))
+        result = super(key, options)
         if wrappers
           result = apply_wrappers(result, wrappers)
         end

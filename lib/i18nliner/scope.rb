@@ -20,9 +20,5 @@ module I18nliner
         key
       end
     end
-
-    def self.root
-      @root ||= new
-    end
   end
 end
