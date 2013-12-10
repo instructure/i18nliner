@@ -7,6 +7,8 @@ module I18nliner
     class TranslateCall
       include CallHelpers
 
+      attr_reader :key, :default
+
       def initialize(scope, line, method, args)
         @scope = scope
         @line = line

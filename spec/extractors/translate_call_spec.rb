@@ -44,6 +44,12 @@ describe I18nliner::Extractors::TranslateCall do
       }.to raise_error(I18nliner::InvalidSignatureError)
     end
 
+    # for legacy calls, e.g. t :key, :default => "foo"
+    it "should allow the default to be specified in the options hash" do
+      call = call(no_scope, :key, :default => "foo")
+      call.default.should == "foo"
+    end
+
     it "should ensure options is a hash, if provided" do
       expect {
         call(no_scope, :key, "value", Object.new)

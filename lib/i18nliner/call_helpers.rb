@@ -70,8 +70,11 @@ module I18nliner
       has_key = key_provided?(scope, *args)
       args.unshift infer_key(args[0]) if !has_key && (args[0].is_a?(String) || args[0].is_a?(Hash))
 
-      # [key, options] -> [key, nil, options]
-      args.insert(1, nil) if has_key && args[1].is_a?(Hash) && args[2].nil?
+      # [key, options] -> [key, nil_or_default, options]
+      if has_key && args[1].is_a?(Hash) && args[2].nil?
+        default = args[1].delete(:default)
+        args.insert(1, default)
+      end
       args
     end
   end
