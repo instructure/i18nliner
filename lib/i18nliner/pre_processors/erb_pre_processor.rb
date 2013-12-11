@@ -140,7 +140,6 @@ module I18nliner
           source
         end
 
-        
         def find_or_add_wrapper(wrapper, wrappers)
           unless pos = wrappers.index(wrapper)
             pos = wrappers.size
@@ -148,7 +147,7 @@ module I18nliner
           end
           pos
         end
-        
+
         # incidentally this converts entities to their corresponding values
         def extract_html_wrappers!(source, wrappers, placeholder_map)
           default = ''

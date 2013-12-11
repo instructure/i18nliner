@@ -1,4 +1,5 @@
 require 'i18nliner/base'
+require 'i18nliner/call_helpers'
 require 'i18nliner/extensions/inferpolation'
 
 module I18nliner
@@ -10,7 +11,7 @@ module I18nliner
       ALLOW_RELATIVE = false
 
       def translate(*args)
-        key, options = CallHelper.infer_arguments(args)
+        key, options = CallHelpers.infer_arguments(args)
         options = inferpolate(options) if I18nliner.infer_interpolation_values
         I18n.t(key, options)
       end

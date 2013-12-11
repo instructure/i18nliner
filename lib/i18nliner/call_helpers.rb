@@ -87,6 +87,7 @@ module I18nliner
         options = args[2] ||= {}
         options[:default] = args.delete_at(1) if options.is_a?(Hash)
       end
+      args << {} if args.size == 1
       args
     end
 
