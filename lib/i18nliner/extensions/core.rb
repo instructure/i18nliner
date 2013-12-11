@@ -47,7 +47,7 @@ module I18nliner
           pattern = pattern_for(k)
           string.gsub!(pattern, v)
         end
-        string
+        string.html_safe
       end
 
       def pattern_for(key)

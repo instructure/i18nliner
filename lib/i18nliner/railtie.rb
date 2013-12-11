@@ -8,6 +8,8 @@ module I18nliner
       ActionController::Base.send :include, I18nliner::Extensions::Controller
     end
     ActiveSupport.on_load :action_view do
+      require 'i18nliner/erubis'
+      ActionView::Template::Handlers::ERB.erb_implementation = I18nliner::Erubis
       ActionView::Base.send :include, I18nliner::Extensions::View
     end
     ActiveSupport.on_load :active_record do

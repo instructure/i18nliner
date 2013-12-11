@@ -6,11 +6,17 @@ yay readme-driven development!
 
 ## TODO
 
-* hook ERB pre_processor into rails ERB fu 
+* accurate line numbers for errors in ERB w/ t-blocks (currently they
+match pre-processed, not original source)
+* helpful error when t-blocks are used incorrectly (need to output block, no
+args allowed)
 * rake tasks
-  * dump
-  * diff
-  * import
+  * make sure check task actually works
+  * implement:
+    * dump
+    * diff
+    * import
+* moar specs
 
 ====
 

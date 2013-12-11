@@ -29,8 +29,9 @@ describe I18nliner::Extensions::Core do
     end
 
     it "should apply wrappers" do
-      i18n.translate("Hello *bob*. Click **here**", :wrappers => ['<b>\1</b>', '<a href="/">\1</a>']).
-        should == "Hello <b>bob</b>. Click <a href=\"/\">here</a>"
+      result = i18n.translate("Hello *bob*. Click **here**", :wrappers => ['<b>\1</b>', '<a href="/">\1</a>'])
+      result.should == "Hello <b>bob</b>. Click <a href=\"/\">here</a>"
+      result.should be_html_safe
     end
 
     it "should html-escape the default when applying wrappers" do
@@ -40,15 +41,23 @@ describe I18nliner::Extensions::Core do
   end
 
   describe ".interpolate_hash" do
+    it "should not mark the result as html-safe if none of the components are html-safe" do
+      result = i18n.interpolate_hash("hello %{name}", :name => "<script>")
+      result.should == "hello <script>"
+      result.should_not be_html_safe
+    end
+
     it "should html-escape values if the string is html-safe" do
-      i18n.interpolate_hash("some markup: %{markup}".html_safe, :markup => "<html>").
-        should == "some markup: &lt;html&gt;"
+      result = i18n.interpolate_hash("some markup: %{markup}".html_safe, :markup => "<html>")
+      result.should == "some markup: &lt;html&gt;"
+      result.should be_html_safe
     end
 
     it "should html-escape the string and other values if any value is html-safe" do
       markup = "<input>"
-      i18n.interpolate_hash("type %{input} & you get this: %{output}", :input => markup, :output => markup.html_safe).
-        should == "type &lt;input&gt; &amp; you get this: <input>"
+      result = i18n.interpolate_hash("type %{input} & you get this: %{output}", :input => markup, :output => markup.html_safe)
+      result.should == "type &lt;input&gt; &amp; you get this: <input>"
+      result.should be_html_safe
     end
   end
 end
