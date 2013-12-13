@@ -30,24 +30,30 @@ stay HTML-free.
 
 I18nliner lets you do stuff like this:
 
-    t "Ohai %{@user.name}, my default translation is right here in the code. " +
-      "Inferred keys and placeholder values, oh my!"
+```ruby
+t "Ohai %{@user.name}, my default translation is right here in the code. " +
+  "Inferred keys and placeholder values, oh my!"
+```
 
 and even this:
 
-    <%= t do %>
-      Hey <%= amigo %>!
-      Although I am <%= link_to "linking to something", random_path %> and
-      have some <strong>bold text</strong>, the translators will see
-      <strong><em>absolutely no markup</em></strong> and will only have a
-      single string to translate :o
-    <% end %>
+```erb
+<%= t do %>
+  Hey <%= amigo %>!
+  Although I am <%= link_to "linking to something", random_path %> and
+  have some <strong>bold text</strong>, the translators will see
+  <strong><em>absolutely no markup</em></strong> and will only have a
+  single string to translate :o
+<% end %>
+```
 
 ## Installation
 
 Add the following to your Gemfile:
 
-    gem 'i18nliner'
+```ruby
+gem 'i18nliner'
+```
 
 ## Features
 
@@ -55,11 +61,15 @@ Add the following to your Gemfile:
 
 Instead of maintaining .yml files and doing stuff like this:
 
-    I18n.t :account_page_title
+```ruby
+I18n.t :account_page_title
+```
 
 Forget the .yml and just do:
 
-    I18n.t :account_page_title, "My Account"
+```ruby
+I18n.t :account_page_title, "My Account"
+```
 
 Regular I18n options follow the (optional) default translation, so you can do
 the usual stuff (placeholders, etc.).
@@ -68,7 +78,9 @@ the usual stuff (placeholders, etc.).
 
 Sure, but *you* don't need to write it. Just run:
 
-    rake i18nliner:dump
+```bash
+rake i18nliner:dump
+```
 
 This extracts all default translations from your codebase, merges them with any
 other ones (from rails or pre-existing .yml files), and outputs them to
@@ -79,7 +91,9 @@ other ones (from rails or pre-existing .yml files), and outputs them to
 Why waste time coming up with keys that are less descriptive than the default
 translation? I18nliner makes keys optional, so you can just do this:
 
-    I18n.t "My Account"
+```ruby
+I18n.t "My Account"
+```
 
 I18nliner will create a [unique key](CONFIG.md) based on the translation (e.g.
 `:my_account`), so you don't have to.
@@ -96,18 +110,22 @@ Interpolation values may be inferred by I18nliner if not provided. So long as
 it's an instance variable or method (or chain), you don't need to specify its
 value. So this:
 
-    <p>
-      <%= t "Hello, %{user}. This request was a %{request_method}.", 
-            :user => @user.name,
-            :request_method => request.method
-      %>
-    </p>
+```erb
+<p>
+  <%= t "Hello, %{user}. This request was a %{request_method}.", 
+        :user => @user.name,
+        :request_method => request.method
+  %>
+</p>
+```
 
 Can just be this:
 
-    <p>
-      <%= t "Hello, %{@user.name}. This request was a %{request.method}." %>
-    </p>
+```erb
+<p>
+  <%= t "Hello, %{@user.name}. This request was a %{request.method}." %>
+</p>
+```
 
 Note that local variables cannot be inferred.
 
@@ -117,19 +135,23 @@ Note that local variables cannot be inferred.
 
 Suppose you have something like this in your ERB:
 
-    <p>
-      You can <%= link_to "lead", new_discussion_path %> a new discussion or
-      <%= link_to "join", discussion_search_path %> an existing one.
-    </p>
+```erb
+<p>
+  You can <%= link_to "lead", new_discussion_path %> a new discussion or
+  <%= link_to "join", discussion_search_path %> an existing one.
+</p>
+```
 
 You might try something like this:
 
-    <p>
-      <%= t("You can %{lead} a new discussion or %{join} an existing one.",
-            :lead => link_to(t("lead"), new_discussion_path),
-            :join => link_to(t("join"), discussion_search_path)).html_safe
-      %>
-    </p>
+```erb
+<p>
+  <%= t("You can %{lead} a new discussion or %{join} an existing one.",
+        :lead => link_to(t("lead"), new_discussion_path),
+        :join => link_to(t("join"), discussion_search_path)).html_safe
+  %>
+</p>
+```
 
 This is not great, because:
 
@@ -141,14 +163,16 @@ This is not great, because:
 
 So you might try this instead:
 
-    <p>
-      <%= t :discussion_html,
-            "You can <a href="%{lead_url}">lead</a> a new discussion or " +
-            "<a href="%{join_url}">join</a> an existing one.",
-            :lead_url => new_discussion_path,
-            :join_url => discussion_search_path
-      %>
-    </p>
+```erb
+<p>
+  <%= t :discussion_html,
+        "You can <a href="%{lead_url}">lead</a> a new discussion or " +
+        "<a href="%{join_url}">join</a> an existing one.",
+        :lead_url => new_discussion_path,
+        :join_url => discussion_search_path
+  %>
+</p>
+```
 
 This isn't much better, because now you have HTML in your translations. If you
 want to add a class to the link, you have to go update all the translations.
@@ -162,14 +186,16 @@ So what do you do?
 I18nliner lets you specify wrappers, so you can keep HTML out the translations,
 while still just having a single string needing translation:
 
-    <p>
-      <%= t "You can *lead* a new discussion or **join** an existing one.",
-            :wrappers => [
-              link_to('\1', new_discussion_path),
-              link_to('\1', discussion_search_path)
-            ]
-      %>
-    </p>
+```erb
+<p>
+  <%= t "You can *lead* a new discussion or **join** an existing one.",
+        :wrappers => [
+          link_to('\1', new_discussion_path),
+          link_to('\1', discussion_search_path)
+        ]
+  %>
+</p>
+```
 
 Default delimiters are increasing numbers of asterisks, but you can specify
 any string as a delimiter by using a hash rather than an array.
@@ -180,37 +206,43 @@ But wait, there's more!
 
 Perhaps you want your templates to look like, well, templates. Try this:
 
-    <p>
-      <%= t do %>
-        Welcome to the internets, <%= user.name %>
-      <% end %>
-    </p>
+```erb
+<p>
+  <%= t do %>
+    Welcome to the internets, <%= user.name %>
+  <% end %>
+</p>
+```
 
 Or even this:
 
-    <p>
-      <%= t do %>
-        <b>Ohai <%= user.name %>,</b>
-        you can <%= link_to "lead", new_discussion_path %> a new discussion or
-        <%= link_to "join", discussion_search_path %> an existing one.
-      <% end %>
-    </p>
+```erb
+<p>
+  <%= t do %>
+    <b>Ohai <%= user.name %>,</b>
+    you can <%= link_to "lead", new_discussion_path %> a new discussion or
+    <%= link_to "join", discussion_search_path %> an existing one.
+  <% end %>
+</p>
+```
 
 In case you're curious about the man behind the curtain, I18nliner adds an ERB
 pre-processor that turns the second example into something like this right
 before it hits ERB:
 
-    <p>
-      <%= t :some_unique_key,
-            "*Ohai %{user_name}*, you can **lead** a new discussion or ***join*** an existing one.",
-            :user_name => user.name,
-            :wrappers => [
-              '<b>\1</b>',
-              link_to('\1', new_discussion_path),
-              link_to('\1', discussion_search_path)
-            ]
-      %>
-    </p>
+```erb
+<p>
+  <%= t :some_unique_key,
+        "*Ohai %{user_name}*, you can **lead** a new discussion or ***join*** an existing one.",
+        :user_name => user.name,
+        :wrappers => [
+          '<b>\1</b>',
+          link_to('\1', new_discussion_path),
+          link_to('\1', discussion_search_path)
+        ]
+  %>
+</p>
+```
 
 In other words, it will infer wrappers from your (balanced) markup and
 [`link_to` calls](INFERRED_WRAPPERS.md), and will create placeholders for any
@@ -220,12 +252,14 @@ other (inline) ERB expressions. ERB statements (e.g.
 translation. The only exception to this rule is nested translation
 calls, e.g. this is totally fine:
 
-    <%= t do %>
-      Be sure to
-      <a href="/account/" title="<%= t do %>Account Settings<% end %>">
-        set up your account
-      </a>.
-    <% end %>
+```erb
+<%= t do %>
+  Be sure to
+  <a href="/account/" title="<%= t do %>Account Settings<% end %>">
+    set up your account
+  </a>.
+<% end %>
+```
 
 #### HTML Safety
 
@@ -239,20 +273,26 @@ escaped.
 Pluralization can be tricky, but [I18n gives you some flexibility](http://guides.rubyonrails.org/i18n.html#pluralization).
 I18nliner brings this inline with a default translation hash, e.g.
 
-    t({:one => "There is one light!", :other => "There are %{count} lights!"},
-      :count => picard.visible_lights.count)
+```ruby
+t({:one => "There is one light!", :other => "There are %{count} lights!"},
+  :count => picard.visible_lights.count)
+```
 
 Note that the :count interpolation value needs to be explicitly set when doing
 pluralization.
 
 If you just want to pluralize a single word, there's a shortcut:
 
-    t "person", :count => users.count
+```ruby
+t "person", :count => users.count
+```
 
 This is equivalent to:
 
-    t({:one => "1 person", :other => "%{count} people"},
-      :count => users.count)
+```ruby
+t({:one => "1 person", :other => "%{count} people"},
+  :count => users.count)
+```
 
 I18nliner uses the pluralize helper to determine the default one/other values,
 so if your `I18n.default_locale` is something other than English, you may need
@@ -295,7 +335,9 @@ though it supports
 If you only want to check a particular file/directory/pattern, you can set the
 environment variable `ONLY` when you run the command, e.g.
 
-    rake i18nliner:check ONLY=/app/**/user*
+```bash
+rake i18nliner:check ONLY=/app/**/user*
+```
 
 ## Compatibility
 
