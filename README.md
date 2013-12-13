@@ -125,9 +125,9 @@ Suppose you have something like this in your ERB:
 You might try something like this:
 
     <p>
-      <%= t "You can %{lead} a new discussion or %{join} an existing one.",
+      <%= t("You can %{lead} a new discussion or %{join} an existing one.",
             :lead => link_to(t("lead"), new_discussion_path),
-            :join => link_to(t("join"), discussion_search_path)
+            :join => link_to(t("join"), discussion_search_path)).html_safe
       %>
     </p>
 
