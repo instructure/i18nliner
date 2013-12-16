@@ -25,6 +25,7 @@ module I18nliner
     end
 
     def infer_key(default, translate_options = {})
+      return unless default && (default.is_a?(String) || default.is_a?(Hash))
       default = default[:other].to_s if default.is_a?(Hash)
       keyify(normalize_default(default, translate_options))
     end
@@ -78,9 +79,7 @@ module I18nliner
       end
 
       has_key = key_provided?(*args)
-      if !has_key && (args[0].is_a?(String) || args[0].is_a?(Hash))
-        args.unshift infer_key(args[0])
-      end
+      args.unshift infer_key(args[0]) unless has_key
 
       default_or_options = args[1]
       if args[2] || default_or_options.is_a?(String) || pluralization_hash?(default_or_options)

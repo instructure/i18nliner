@@ -14,6 +14,7 @@ module I18nliner
     end
   end
 
+  # extraction errors
   class InvalidSignatureError < ExtractionError; end
   class MissingDefaultError < ExtractionError; end
   class AmbiguousKeyError < ExtractionError; end
@@ -27,6 +28,7 @@ module I18nliner
   class KeyAsScopeError < ExtractionError; end
   class KeyInUseError < ExtractionError; end
 
+  # pre-processing errors
   class TBlockNestingError < StandardError; end
   class MalformedErbError < StandardError; end
   class UnwrappableContentError < StandardError; end
