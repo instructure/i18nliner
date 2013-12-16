@@ -45,6 +45,8 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
     it "should disallow nesting non-t block expressions in a t block expression" do
       expect { process("<%= t { %><%= s { %>nope<% } %><% } %>") }.
         to raise_error(I18nliner::TBlockNestingError)
+      expect { process("<%= t { %><%= s(:some, :args) { |args, here, too| %>nope<% } %><% } %>") }.
+        to raise_error(I18nliner::TBlockNestingError)
     end
 
     it "should disallow statements in a t block expression" do
