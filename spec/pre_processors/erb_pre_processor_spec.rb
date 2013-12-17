@@ -1,6 +1,7 @@
 # encoding: UTF-8
 require 'i18nliner/pre_processors/erb_pre_processor'
 require 'i18nliner/errors'
+require 'active_support/core_ext/string/strip.rb'
 
 describe I18nliner::PreProcessors::ErbPreProcessor do
   before do
@@ -8,8 +9,10 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
   end
 
   describe ".process" do
-    def process(string)
-      I18nliner::PreProcessors::ErbPreProcessor.process(string)
+    def process(string, remove_blank_lines = true)
+      result = I18nliner::PreProcessors::ErbPreProcessor.process(string)
+      result.gsub!(/\n+%>/, " %>") if remove_blank_lines
+      result
     end
 
     it "should transform t block expressions" do
@@ -17,9 +20,32 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         '<%= t :key, "hello world!" %>'
     end
 
-    it "should remove extraneous whitespace" do
-      process("<%= t do %> ohai!\n lulz\t <% end %>").should ==
+    it "should remove extraneous whitespace from the default" do
+      process("<%= t do %> ohai!  lulz\t <% end %>").should ==
         '<%= t :key, "ohai! lulz" %>'
+    end
+
+    # so that line numbers are close-ish when you get an error in a
+    # multi-line t-block... an exception from an expression might not
+    # match up perfectly, but it will at least point to the start of the
+    # t-block
+    it "should preserve all newlines in the generated erb" do
+      process(<<-SOURCE.strip_heredoc, false).
+        <%= t do
+        %>
+          ohai!
+          <%= test %>
+          lulz
+        <% end %>
+        SOURCE
+      should == <<-EXPECTED.strip_heredoc
+        <%= t :key, "ohai! %{test} lulz", :test => (test)
+
+
+
+
+        %>
+        EXPECTED
     end
 
     it "should not translate other block expressions" do

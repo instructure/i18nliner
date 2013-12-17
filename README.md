@@ -6,10 +6,9 @@ yay readme-driven development!
 
 ## TODO
 
-* accurate line numbers for errors in ERB w/ t-blocks (currently they
-match pre-processed, not original source)
-* helpful error when t-blocks are used incorrectly (need to output block, no
-args allowed)
+* more helpful error when t-blocks are used incorrectly (e.g. "you need to
+  output block, no args allowed") ... currently you get an ArgumentError,
+  which is better than nothing, but misleading
 * rake tasks
   * make sure check task actually works
   * implement:

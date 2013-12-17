@@ -19,7 +19,7 @@ module I18nliner
 
         def <<(string)
           if string =~ ERB_T_BLOCK_EXPRESSION
-            TBlock.new(self)
+            TBlock.new(self, $&)
           else
             @buffer << string
             self
@@ -85,11 +85,16 @@ module I18nliner
       class TBlock < Context
         include CallHelpers
 
+        def initialize(parent, content)
+          super(parent)
+          @lines = content.count("\n")
+        end
+
         def <<(string)
           case string
           when ERB_BLOCK_EXPRESSION
             if string =~ ERB_T_BLOCK_EXPRESSION
-              TBlock.new(self)
+              TBlock.new(self, $&)
             else
               raise TBlockNestingError.new("can't nest block expressions inside a t block")
             end
@@ -109,11 +114,13 @@ module I18nliner
         end
 
         def result
+          @lines += @buffer.count("\n")
           key, default, options, wrappers = normalize_call
           result = "<%= t :#{key}, #{default}"
           result << ", " << options if options
           result << ", " << wrappers if wrappers
-          result << " %>"
+          result << (@lines > 0 ? "\n" * @lines : " ")
+          result << "%>"
         end
 
         # get a unique and reasonable looking key for a given erb
@@ -279,7 +286,7 @@ module I18nliner
         \s*
         %>
         \z
-      /x
+      /xm
       ERB_T_BLOCK_EXPRESSION = /
         \A
         <%=
@@ -291,7 +298,7 @@ module I18nliner
         \s*
         %>
         \z
-      /x
+      /xm
       ERB_STATEMENT = /\A<%[^=]/
       ERB_END_STATEMENT = /
         \A
@@ -299,8 +306,8 @@ module I18nliner
         \s*
         (end|\})
         (\W|%>\z)
-      /x
-      ERB_TOKENIZER = /(<%.*?%>)/
+      /xm
+      ERB_TOKENIZER = /(<%.*?%>)/m
 
       def self.process(source)
         new(source).result
