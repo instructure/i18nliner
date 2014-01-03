@@ -349,7 +349,8 @@ I18nliner requires at least Ruby 1.9.3 and Rails 3.
 
 ## What about JavaScript/Handlebars?
 
-Coming soon. I18nliner was inspired by some [I18n extensions](https://github.com/instructure/canvas-lms/tree/master/lib/i18n_extraction)
+[Coming](https://github.com/jenseng/i18nliner-js) [soon](https://github.com/fivetanley/i18ninliner-handlebars).
+I18nliner was inspired by some [I18n extensions](https://github.com/instructure/canvas-lms/tree/master/lib/i18n_extraction)
 I did in [Canvas-LMS](https://github.com/instructure/canvas-lms). While
 it also has the JavaScript/Handlebars equivalents, they are tightly
 coupled to Canvas-LMS and are written in Ruby. So basically we're talking
