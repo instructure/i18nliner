@@ -7,11 +7,11 @@ yay readme-driven development!
 ## TODO
 
 * rake tasks
-  * make sure check task actually works
   * implement:
     * dump
     * diff
     * import
+  * railtie fu
 * moar specs
 
 ====

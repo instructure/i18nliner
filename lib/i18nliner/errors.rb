@@ -6,7 +6,8 @@ module I18nliner
     end
 
     def to_s
-      error = self.class.name.humanize.sub(/ error\z/, '')
+      error = self.class.name.underscore.humanize
+      error.gsub!(/\AI18nliner\/| error\z/, '')
       error = "#{error} on line #{@line}"
       @detail ?
         error + " (got #{@detail.inspect})" :

@@ -5,6 +5,8 @@ require 'i18nliner/pre_processors/erb_pre_processor'
 module I18nliner
   module Processors
     class ErbProcessor < RubyProcessor
+      default_pattern '*.erb'
+
       def pre_process(source)
         source = PreProcessors::ErbPreProcessor.process(source)
         Erubis::Eruby.new(source).src

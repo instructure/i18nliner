@@ -1,17 +1,22 @@
+require 'i18nliner/commands/generic_command'
+require 'i18nliner/extractors/translation_hash'
+require 'active_support/core_ext/enumerable'
+
 module I18nliner
   module Commands
     class Check < GenericCommand
-      attr_reader :translations
+      attr_reader :translations, :errors
 
       def initialize(options)
         super
         @errors = []
-        @translations = TranslationHash.new(I18nliner.manual_translations)
+        @translations = I18nliner::Extractors::TranslationHash.new(I18nliner.manual_translations)
       end
 
       def processors
         @processors ||= I18nliner::Processors.all.map do |klass|
-          klass.new :only => @options[:only],
+          klass.new @translations,
+                    :only => @options[:only],
                     :translations => @translations,
                     :checker => method(:check_file)
         end
@@ -22,10 +27,12 @@ module I18nliner
       end
 
       def check_file(file)
-        print green(".") if yield file
+        if yield file
+          print green(".") unless @options[:silent]
+        end
       rescue SyntaxError, StandardError, ExtractionError
         @errors << "#{$!}\n#{file}"
-        print red("F")
+        print red("F") unless @options[:silent]
       end
 
       def failure
@@ -51,7 +58,7 @@ module I18nliner
 
       def run
         check_files
-        print_summary
+        print_summary unless @options[:silent]
         raise "check command encountered errors" if failure
       end
     end

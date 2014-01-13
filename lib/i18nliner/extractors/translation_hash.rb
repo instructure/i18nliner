@@ -3,8 +3,8 @@ module I18nliner
     class TranslationHash < Hash
       attr_accessor :line
 
-      def self.new(hash = nil)
-        hash.is_a?(self) ? hash : super
+      def self.new(hash = {})
+        hash.is_a?(self) ? hash : super().replace(hash)
       end
   
       def initialize(*args)
@@ -37,7 +37,7 @@ module I18nliner
           end
         else
           @total_size += 1
-          hash.store(key, value)
+          hash.store(leaf, value)
         end
       end
     end

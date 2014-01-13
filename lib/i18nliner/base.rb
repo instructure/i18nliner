@@ -1,7 +1,21 @@
 require 'i18n'
 
 module I18nliner
+  def self.ignore
+    @ignore ||= begin
+      path = File.join(base_path, ".i18nignore")
+      File.exist?(path) ?
+        File.read(path).split(/\r?\n|\r/) :
+        []
+    end
+  end
+
   def self.translations
+  end
+
+  def self.manual_translations
+    # TODO: support additional backends
+    I18n.backend.send(:translations)
   end
 
   def self.look_up(key)
@@ -29,4 +43,5 @@ module I18nliner
 
   setting :inferred_key_format,        :underscored_crc32
   setting :infer_interpolation_values, true
+  setting :base_path,                  "./"
 end

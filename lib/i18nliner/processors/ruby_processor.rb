@@ -5,10 +5,13 @@ require 'i18nliner/scope'
 module I18nliner
   module Processors
     class RubyProcessor < AbstractProcessor
+      default_pattern '*.rb'
+
       def check_contents(source, scope = Scope.new)
         sexps = RubyParser.new.parse(pre_process(source))
         extractor = Extractors::RubyExtractor.new(sexps, scope)
         extractor.each_translation do |key, value|
+          @translation_count += 1
           @translations.line = extractor.current_line
           @translations[key] = value
         end
@@ -19,7 +22,7 @@ module I18nliner
       end
 
       def scope_for(path)
-        Scope.new
+        Scope.root
       end
 
       def pre_process(source)
