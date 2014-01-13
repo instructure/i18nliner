@@ -32,4 +32,7 @@ module I18nliner
   class TBlockNestingError < StandardError; end
   class MalformedErbError < StandardError; end
   class UnwrappableContentError < StandardError; end
+
+  # runtime errors
+  class InvalidBlockUsageError < ArgumentError; end
 end

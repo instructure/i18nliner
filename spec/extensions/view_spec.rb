@@ -27,9 +27,12 @@ describe I18nliner::Extensions::View do
     it "should raise an error when given a block" do
       expect {
         i18n.translate(:foo) {
-          uhoh there was a bug with erb extraction
+          uhoh there was a bug with erb extraction or im doing it wrong
         }
-      }.to raise_error /block syntax not supported/
+      }.to raise_error I18nliner::InvalidBlockUsageError
+    end
+
+    it "should raise an error when given an incorrect number of arguments" do
       expect {
         i18n.translate
       }.to raise_error /wrong number of arguments/

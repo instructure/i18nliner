@@ -6,9 +6,6 @@ yay readme-driven development!
 
 ## TODO
 
-* more helpful error when t-blocks are used incorrectly (e.g. "you need to
-  output block, no args allowed") ... currently you get an ArgumentError,
-  which is better than nothing, but misleading
 * rake tasks
   * make sure check task actually works
   * implement:
@@ -30,7 +27,7 @@ stay HTML-free.
 I18nliner lets you do stuff like this:
 
 ```ruby
-t "Ohai %{@user.name}, my default translation is right here in the code. " +
+t "Ohai %{@user.name}, my default translation is right here in the code. " \
   "Inferred keys and placeholder values, oh my!"
 ```
 
@@ -165,7 +162,7 @@ So you might try this instead:
 ```erb
 <p>
   <%= t :discussion_html,
-        "You can <a href="%{lead_url}">lead</a> a new discussion or " +
+        "You can <a href="%{lead_url}">lead</a> a new discussion or " \
         "<a href="%{join_url}">join</a> an existing one.",
         lead_url: new_discussion_path,
         join_url: discussion_search_path
