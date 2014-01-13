@@ -112,8 +112,8 @@ value. So this:
 ```erb
 <p>
   <%= t "Hello, %{user}. This request was a %{request_method}.", 
-        :user => @user.name,
-        :request_method => request.method
+        user: @user.name,
+        request_method: request.method
   %>
 </p>
 ```
@@ -146,8 +146,8 @@ You might try something like this:
 ```erb
 <p>
   <%= t("You can %{lead} a new discussion or %{join} an existing one.",
-        :lead => link_to(t("lead"), new_discussion_path),
-        :join => link_to(t("join"), discussion_search_path)).html_safe
+        lead: link_to(t("lead"), new_discussion_path),
+        join: link_to(t("join"), discussion_search_path)).html_safe
   %>
 </p>
 ```
@@ -167,8 +167,8 @@ So you might try this instead:
   <%= t :discussion_html,
         "You can <a href="%{lead_url}">lead</a> a new discussion or " +
         "<a href="%{join_url}">join</a> an existing one.",
-        :lead_url => new_discussion_path,
-        :join_url => discussion_search_path
+        lead_url: new_discussion_path,
+        join_url: discussion_search_path
   %>
 </p>
 ```
@@ -188,7 +188,7 @@ while still just having a single string needing translation:
 ```erb
 <p>
   <%= t "You can *lead* a new discussion or **join** an existing one.",
-        :wrappers => [
+        wrappers: [
           link_to('\1', new_discussion_path),
           link_to('\1', discussion_search_path)
         ]
@@ -233,8 +233,8 @@ before it hits ERB:
 <p>
   <%= t :some_unique_key,
         "*Ohai %{user_name}*, you can **lead** a new discussion or ***join*** an existing one.",
-        :user_name => user.name,
-        :wrappers => [
+        user_name: user.name,
+        wrappers: [
           '<b>\1</b>',
           link_to('\1', new_discussion_path),
           link_to('\1', discussion_search_path)
@@ -273,8 +273,8 @@ Pluralization can be tricky, but [I18n gives you some flexibility](http://guides
 I18nliner brings this inline with a default translation hash, e.g.
 
 ```ruby
-t({:one => "There is one light!", :other => "There are %{count} lights!"},
-  :count => picard.visible_lights.count)
+t({one: "There is one light!", other: "There are %{count} lights!"},
+  count: picard.visible_lights.count)
 ```
 
 Note that the :count interpolation value needs to be explicitly set when doing
@@ -283,17 +283,18 @@ pluralization.
 If you just want to pluralize a single word, there's a shortcut:
 
 ```ruby
-t "person", :count => users.count
+t "person", count: users.count
 ```
 
 This is equivalent to:
 
 ```ruby
-t({:one => "1 person", :other => "%{count} people"},
-  :count => users.count)
+t({one: "1 person", other: "%{count} people"},
+  count: users.count)
 ```
 
-I18nliner uses the pluralize helper to determine the default one/other values,
+I18nliner uses [`String#pluralize`](http://edgeguides.rubyonrails.org/active_support_core_extensions.html#pluralize)
+to determine the default one/other values,
 so if your `I18n.default_locale` is something other than English, you may need
 to [add some inflections](https://gist.github.com/838188).
 
@@ -360,4 +361,4 @@ that is js_extractor.
 
 ## License
 
-Copyright (c) 2013 Jon Jensen, released under the MIT license
+Copyright (c) 2014 Jon Jensen, released under the MIT license
