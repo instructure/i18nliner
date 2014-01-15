@@ -12,8 +12,14 @@ module I18nliner
         extend ColorFormatter if $stdout.tty?
       end
 
+      def success?
+        true
+      end
+
       def self.run(options)
-        new(options).run
+        command = new(options)
+        command.run
+        command
       end
     end
   end

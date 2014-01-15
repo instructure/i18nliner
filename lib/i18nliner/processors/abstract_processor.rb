@@ -23,7 +23,7 @@ module I18nliner
       def files
         @files ||= begin
           files = Globby.select(Array(@pattern))
-          files = files.select(@only) if @only
+          files = files.select(Array(@only.dup)) if @only
           files.reject(I18nliner.ignore)
         end
       end

@@ -1,6 +1,9 @@
 require 'i18nliner/commands/generic_command'
 require 'i18nliner/extractors/translation_hash'
 require 'active_support/core_ext/enumerable'
+Dir[File.join(File.dirname(__FILE__), "../processors/*.rb")].each do |file|
+  require "i18nliner/processors/#{File.basename(file)}"
+end
 
 module I18nliner
   module Commands

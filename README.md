@@ -10,7 +10,6 @@ yay readme-driven development!
   * implement:
     * diff
     * import
-  * railtie fu
 * moar specs
 
 ====
