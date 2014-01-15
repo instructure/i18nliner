@@ -8,7 +8,6 @@ yay readme-driven development!
 
 * rake tasks
   * implement:
-    * dump
     * diff
     * import
   * railtie fu

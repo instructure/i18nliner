@@ -35,8 +35,8 @@ module I18nliner
         print red("F") unless @options[:silent]
       end
 
-      def failure
-        @errors.size > 0
+      def success?
+        @errors.empty?
       end
 
       def print_summary
@@ -53,13 +53,13 @@ module I18nliner
 
         print "Finished in #{Time.now - @start} seconds\n\n"
         summary = "#{file_count} files, #{translation_count} strings, #{@errors.size} failures"
-        puts failure ? red(summary) : green(summary)
+        puts success? ? green(summary) : red(summary)
       end
 
       def run
         check_files
         print_summary unless @options[:silent]
-        raise "check command encountered errors" if failure
+        success?
       end
     end
   end

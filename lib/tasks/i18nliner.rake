@@ -7,7 +7,7 @@ namespace :i18nliner do
 
   desc "Generates a new [default_locale].yml file for all translations"
   task :dump => :check do
-    options = {:translations => @command.translations}
+    options = {:translations => @command.translations, :file => ENV['YML_FILE']}
     @command = I18nliner::Commands::Dump.run(options) or exit 1
   end
 end
