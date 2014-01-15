@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency('ruby_parser', '~> 3.2.2')
   s.add_dependency('sexp_processor', '~> 4.4.0')
   s.add_dependency('ruby2ruby', '~> 2.0.6')
-  s.add_dependency('globby', '>= 0.1.0')
+  s.add_dependency('globby', '>= 0.1.1')
   s.add_dependency('erubis', '~> 2.7.0')
   s.add_dependency('ya2yaml', '0.31')
   s.add_dependency('nokogiri', '~> 1.5.0')
