@@ -310,7 +310,7 @@ files), and outputs them to `config/locales/generated/en.yml`.
 Note that check and dump commands require all translation keys and
 defaults to be literals. This is because it reads your code, it doesn't
 run it. If you know what you are doing and want to pass in a variable or
-other expression, you can use the `t!` (or `translate!`) command. It works
+other expression, you can use the `t!` (or `translate!`) method. It works
 the same as `t` at runtime, but signals to the extractor that it shouldn't
 complain. You should only do this if you are sure that the specified
 key/string is extracted elsewhere or already in your yml.
