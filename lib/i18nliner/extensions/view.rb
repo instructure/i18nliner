@@ -21,6 +21,8 @@ module I18nliner
         super(key, options)
       end
       alias :t :translate
+      alias :t! :translate
+      alias :translate! :translate
     end
   end
 end

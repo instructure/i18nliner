@@ -15,6 +15,8 @@ module I18nliner
         result
       end
       alias :t :translate
+      alias :t! :translate
+      alias :translate! :translate
 
       # can't super this one yet :-/
       def interpolate_hash_with_html_safety(string, values)

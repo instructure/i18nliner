@@ -16,6 +16,8 @@ module I18nliner
         I18n.t(key, options)
       end
       alias :t :translate
+      alias :t! :translate
+      alias :translate! :translate
 
       def localize(*args)
         I18n.localize(*args)

@@ -40,6 +40,13 @@ describe I18nliner::Extensions::Core do
     end
   end
 
+  describe ".translate!" do
+    it "should behave like translate" do
+      expect(i18n).to receive(:simple_translate).with("hello_name_84ff273f", :default => "Hello %{name}", :name => "bob")
+      i18n.translate!("Hello %{name}", :name => "bob")
+    end
+  end
+
   describe ".interpolate_hash" do
     it "should not mark the result as html-safe if none of the components are html-safe" do
       result = i18n.interpolate_hash("hello %{name}", :name => "<script>")

@@ -7,10 +7,8 @@ yay readme-driven development!
 ## TODO
 
 * rake tasks
-  * implement:
-    * diff
-    * import
-* moar specs
+  * diff
+  * import
 
 ====
 
@@ -306,6 +304,16 @@ add this to your Jenkins/Travis tasks.**
 Does an i18nliner:check, and then extracts all default translations from your
 codebase, merges them with any other ones (from rails or pre-existing .yml
 files), and outputs them to `config/locales/generated/en.yml`.
+
+### Dynamic Translations
+
+Note that check and dump commands require all translation keys and
+defaults to be literals. This is because it reads your code, it doesn't
+run it. If you know what you are doing and want to pass in a variable or
+other expression, you can use the `t!` (or `translate!`) command. It works
+the same as `t` at runtime, but signals to the extractor that it shouldn't
+complain. You should only do this if you are sure that the specified
+key/string is extracted elsewhere or already in your yml.
 
 ### i18nliner:diff
 

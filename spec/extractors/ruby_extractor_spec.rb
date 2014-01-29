@@ -24,6 +24,10 @@ describe I18nliner::Extractors::RubyExtractor do
       extract("foo 'Foo'").should == {}
     end
 
+    it "should ignore t! calls" do
+      extract("t! something").should == {}
+    end
+
     it "should not extract t calls with no default" do
       extract("t :foo").should == {}
     end
