@@ -2,15 +2,6 @@
 
 [<img src="https://secure.travis-ci.org/jenseng/i18nliner.png" />](http://travis-ci.org/jenseng/i18nliner)
 
-yay readme-driven development!
-
-## TODO
-
-* rake tasks
-  * import
-
-====
-
 I18nliner is I18n made simple.
 
 No .yml files. Inline defaults. Optional keys. Inferred interpolation values.
@@ -314,11 +305,6 @@ other expression, you can use the `t!` (or `translate!`) method. It works
 the same as `t` at runtime, but signals to the extractor that it shouldn't
 complain. You should only do this if you are sure that the specified
 key/string is extracted elsewhere or already in your yml.
-
-### i18nliner:import
-
-Imports a translated yml file. Ensures that all placeholders and wrappers are
-present.
 
 #### .i18nignore and more
 
