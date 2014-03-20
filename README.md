@@ -7,7 +7,6 @@ yay readme-driven development!
 ## TODO
 
 * rake tasks
-  * diff
   * import
 
 ====
@@ -87,8 +86,9 @@ translation? I18nliner makes keys optional, so you can just do this:
 I18n.t "My Account"
 ```
 
-I18nliner will create a [unique key](CONFIG.md) based on the translation (e.g.
-`:my_account`), so you don't have to.
+I18nliner will create a unique key based on the translation (e.g.
+`:my_account`), so you don't have to. See `I18nliner.inferred_key_format` for
+more information.
 
 This can actually be a **good thing**, because when the `en` changes, the key
 changes, which means you know you need to get it retranslated (instead of
@@ -104,7 +104,7 @@ value. So this:
 
 ```erb
 <p>
-  <%= t "Hello, %{user}. This request was a %{request_method}.", 
+  <%= t "Hello, %{user}. This request was a %{request_method}.",
         user: @user.name,
         request_method: request.method
   %>
@@ -237,7 +237,7 @@ before it hits ERB:
 ```
 
 In other words, it will infer wrappers from your (balanced) markup and
-[`link_to` calls](INFERRED_WRAPPERS.md), and will create placeholders for any
+`link_to` calls, and will create placeholders for any
 other (inline) ERB expressions. ERB statements (e.g.
 `<% if some_condition %>...`) and block expressions (e.g.
 `<%= form_for @person do %>...`) are *not* supported within a block
@@ -314,12 +314,6 @@ other expression, you can use the `t!` (or `translate!`) method. It works
 the same as `t` at runtime, but signals to the extractor that it shouldn't
 complain. You should only do this if you are sure that the specified
 key/string is extracted elsewhere or already in your yml.
-
-### i18nliner:diff
-
-Does an i18nliner:dump and creates a diff from a previous one (path or git
-commit hash). This is useful if you only want to see what has changed since a
-previous release of your app.
 
 ### i18nliner:import
 
