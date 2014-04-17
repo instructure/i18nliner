@@ -10,6 +10,7 @@ describe I18nliner::Commands::Check do
     end
 
     it "should find errors" do
+      allow(I18nliner).to receive(:manual_translations).and_return({})
       checker = I18nliner::Commands::Check.new({:silent => true})
       checker.check_files
       checker.translations.values.should == ["welcome, %{name}", "Hello World", "*This* is a test, %{user}"]

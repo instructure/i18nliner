@@ -4,7 +4,18 @@ module I18nliner
       attr_accessor :line
 
       def self.new(hash = {})
-        hash.is_a?(self) ? hash : super().replace(hash)
+        hash.is_a?(self) ? hash : super().replace(flatten(hash))
+      end
+
+      def self.flatten(hash, result = {}, prefix = "")
+        hash.each do |key, value|
+          if value.is_a?(Hash)
+            flatten(value, result, "#{prefix}#{key}.")
+          else
+            result["#{prefix}#{key}"] = value
+          end
+        end
+        result
       end
 
       def initialize(*args)
@@ -39,6 +50,16 @@ module I18nliner
           @total_size += 1
           hash.store(leaf, value)
         end
+      end
+
+      def expand_keys
+        result = {}
+        each do |key, value|
+          parts = key.split(".")
+          last = parts.pop
+          parts.inject(result){ |h, k2| h[k2] ||= {}}[last] = value
+        end
+        result
       end
     end
   end

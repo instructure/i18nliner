@@ -14,8 +14,9 @@ module I18nliner
   end
 
   def self.manual_translations
+    I18n.t(:foo) # ensure backend is initialized
     # TODO: support additional backends
-    I18n.backend.send(:translations)
+    I18n.backend.send(:translations)[I18n.default_locale]
   end
 
   def self.look_up(key)

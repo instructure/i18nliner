@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require 'i18nliner/commands/dump'
+require 'i18nliner/extractors/translation_hash'
 require 'tmpdir'
 
 describe I18nliner::Commands::Dump do
@@ -14,7 +15,8 @@ describe I18nliner::Commands::Dump do
     end
 
     it "should dump translations in utf8" do
-      dumper = I18nliner::Commands::Dump.new({:silent => true, :translations => {'i18n' => "Iñtërnâtiônàlizætiøn"}})
+      translations = I18nliner::Extractors::TranslationHash.new('i18n' => "Iñtërnâtiônàlizætiøn")
+      dumper = I18nliner::Commands::Dump.new({:silent => true, :translations => translations})
       dumper.run
       File.read(dumper.yml_file).gsub(/\s+$/, '').should == <<-YML.strip_heredoc.strip
         ---
