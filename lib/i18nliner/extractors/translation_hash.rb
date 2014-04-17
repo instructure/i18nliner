@@ -6,12 +6,12 @@ module I18nliner
       def self.new(hash = {})
         hash.is_a?(self) ? hash : super().replace(hash)
       end
-  
+
       def initialize(*args)
         super
         @total_size = 0
       end
-  
+
       def []=(key, value)
         parts = key.split('.')
         leaf = parts.pop
@@ -28,7 +28,7 @@ module I18nliner
           hash = hash[part]
         end
         if hash[leaf]
-          if hash[leaf] != default
+          if hash[leaf] != value
             if hash[leaf].is_a?(Hash)
               raise KeyAsScopeError.new(@line, key)
             else
