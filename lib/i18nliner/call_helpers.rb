@@ -35,7 +35,7 @@ module I18nliner
       key.downcase!
       key.gsub!(/[^a-z0-9_]+/, '_')
       key.gsub!(/\A_|_\z/, '')
-      key[0..50]
+      key[0...I18nliner.underscored_key_length]
     end
 
     def keyify_underscored_crc32(string)

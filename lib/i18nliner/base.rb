@@ -45,4 +45,5 @@ module I18nliner
   setting :inferred_key_format,        :underscored_crc32
   setting :infer_interpolation_values, true
   setting :base_path,                  "./"
+  setting :underscored_key_length,     50
 end
