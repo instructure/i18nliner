@@ -60,11 +60,18 @@ describe I18nliner::Extensions::Core do
       result.should be_html_safe
     end
 
-    it "should html-escape the string and other values if any value is html-safe" do
+    it "should html-escape the string and other values if any value is html-safe strings" do
       markup = "<input>"
       result = i18n.interpolate_hash("type %{input} & you get this: %{output}", :input => markup, :output => markup.html_safe)
       result.should == "type &lt;input&gt; &amp; you get this: <input>"
       result.should be_html_safe
+    end
+
+    it "should not html-escape the string if the html-safe values are not strings" do
+      markup = "<input>"
+      result = i18n.interpolate_hash("my favorite number is %{number} & my favorite color is %{color}", :number => 1, :color => "red")
+      result.should == "my favorite number is 1 & my favorite color is red"
+      result.should_not be_html_safe
     end
   end
 end

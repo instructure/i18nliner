@@ -20,7 +20,7 @@ module I18nliner
 
       # can't super this one yet :-/
       def interpolate_hash_with_html_safety(string, values)
-        if string.html_safe? || values.values.any?(&:html_safe?)
+        if string.html_safe? || values.values.any?{ |v| v.is_a?(ActiveSupport::SafeBuffer) }
           string = ERB::Util.h(string) unless string.html_safe?
           values.each do |key, value|
             values[key] = ERB::Util.h(value) unless value.html_safe?
