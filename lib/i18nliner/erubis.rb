@@ -1,4 +1,4 @@
-require 'action_view/template/handlers/erb'
+require 'action_view/template'
 require 'i18nliner/pre_processors/erb_pre_processor'
 
 module I18nliner
