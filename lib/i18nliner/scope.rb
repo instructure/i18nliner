@@ -23,5 +23,9 @@ module I18nliner
     def self.root
       @root ||= new
     end
+
+    def root?
+      scope.blank?
+    end
   end
 end

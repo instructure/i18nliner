@@ -10,11 +10,11 @@ module I18nliner
 
       attr_reader :key, :default
 
-      def initialize(scope, line, method, args)
+      def initialize(scope, line, method, args, meta = {})
         @scope = scope
         @line = line
         @method = method
-        @meta = {}
+        @meta = meta
 
         normalize_arguments(args)
 

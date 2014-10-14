@@ -56,7 +56,7 @@ module I18nliner
 
       def process_translate_call(receiver, method, args)
         scope = receiver ? Scope.root : @scope
-        call = TranslateCall.new(scope, @current_line, method, args)
+        call = TranslateCall.new(scope, @current_line, method, args, :explicit_receiver => !receiver.nil?)
         call.translations.each &@block
       end
 
