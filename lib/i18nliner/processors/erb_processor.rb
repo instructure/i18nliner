@@ -25,7 +25,7 @@ module I18nliner
       def scope_for(path)
         scope = path.gsub(/(\A|.*\/)app\/views\/|\.html\z|(\.html)?\.erb\z/, '')
         scope = scope.gsub(/\/_?/, '.')
-        Scope.new(scope, :allow_relative => true)
+        Scope.new(scope, :allow_relative => true, :remove_whitespace => true)
       end
     end
   end

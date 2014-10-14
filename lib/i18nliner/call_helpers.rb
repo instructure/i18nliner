@@ -11,10 +11,27 @@ module I18nliner
       scope.normalize_key(key.to_s)
     end
 
-    def normalize_default(default, translate_options = {})
+    def normalize_default(default, translate_options = {}, options = {})
       default = infer_pluralization_hash(default, translate_options)
-      default.strip! if default.is_a?(String)
+      normalize_whitespace!(default, options)
       default
+    end
+
+    def normalize_whitespace!(default, options)
+      if default.is_a?(Hash)
+        default.each { |key, value| normalize_whitespace!(value, options) }
+        return
+      end
+
+      return unless default.is_a?(String)
+
+      if options[:remove_whitespace]
+        default.gsub!(/\s+/, ' ')
+        default.strip!
+      else
+        default.sub!(/\s*\n\z/, '')
+        default.lstrip!
+      end
     end
 
     def infer_pluralization_hash(default, translate_options)
@@ -27,7 +44,7 @@ module I18nliner
     def infer_key(default, translate_options = {})
       return unless default && (default.is_a?(String) || default.is_a?(Hash))
       default = default[:other].to_s if default.is_a?(Hash)
-      keyify(normalize_default(default, translate_options))
+      keyify(normalize_default(default, translate_options, :remove_whitespace => true))
     end
 
     def keyify_underscored(string)

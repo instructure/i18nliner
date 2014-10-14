@@ -30,7 +30,7 @@ module I18nliner
 
       def normalize
         @key = normalize_key(@key, @scope) unless @meta[:inferred_key]
-        @default = normalize_default(@default, @options || {})
+        @default = normalize_default(@default, @options || {}, {:remove_whitespace => @scope.remove_whitespace?})
       end
 
       def translations
