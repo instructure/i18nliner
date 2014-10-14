@@ -28,6 +28,11 @@ describe I18nliner::Extensions::Core do
       i18n.translate("Hello %{name}", :name => "bob")
     end
 
+    it "should infer pluralization hashes" do
+      expect(i18n).to receive(:simple_translate).with("light_6feedaaa", :default => {:one => "1 light", :other => "%{count} lights"}, count: 1)
+      i18n.translate("light", :count => 1)
+    end
+
     it "should apply wrappers" do
       result = i18n.translate("Hello *bob*. Click **here**", :wrappers => ['<b>\1</b>', '<a href="/">\1</a>'])
       result.should == "Hello <b>bob</b>. Click <a href=\"/\">here</a>"

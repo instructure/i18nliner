@@ -7,11 +7,17 @@ module I18nliner
     module Core
       def translate(*args)
         key, options = *CallHelpers.infer_arguments(args)
+
+        if default = options[:default]
+          options[:default] = CallHelpers.normalize_default(default, options)
+        end
+
         wrappers = options.delete(:wrappers)
         result = super(key, options)
         if wrappers
           result = apply_wrappers(result, wrappers)
         end
+
         result
       end
       alias :t :translate
