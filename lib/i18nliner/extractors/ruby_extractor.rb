@@ -24,8 +24,12 @@ module I18nliner
 
       def process_call(exp)
         exp.shift
-        receiver = process(exp.shift)
-        receiver = receiver.last if receiver
+        receiver_exp = exp.shift
+        receiver = nil
+        if receiver_exp
+          receiver = receiver_exp[0] == :const ? receiver_exp.last : UnsupportedExpression
+          process(receiver_exp)
+        end
         method = exp.shift
 
         if extractable_call?(receiver, method)
