@@ -28,6 +28,7 @@ module I18nliner
         elsif stringish?(lhs)
           string_from(lhs) + rhs.last
         else
+          process(lhs)
           UnsupportedExpression
         end
       end
