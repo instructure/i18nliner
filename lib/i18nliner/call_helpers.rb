@@ -73,12 +73,13 @@ module I18nliner
       (hash.keys - ALLOWED_PLURALIZATION_KEYS).size == 0
     end
 
-    def infer_arguments(args)
+    def infer_arguments(args, meta = {})
       if args.size == 2 && args[1].is_a?(Hash) && args[1][:default]
         return args
       end
 
       has_key = key_provided?(*args)
+      meta[:inferred_key] = !has_key
       args.unshift infer_key(args[0]) unless has_key
 
       default_or_options = args[1]

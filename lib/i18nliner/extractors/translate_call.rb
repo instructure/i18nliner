@@ -14,6 +14,7 @@ module I18nliner
         @scope = scope
         @line = line
         @method = method
+        @meta = {}
 
         normalize_arguments(args)
 
@@ -28,7 +29,7 @@ module I18nliner
       end
 
       def normalize
-        @key = normalize_key(@key, @scope)
+        @key = normalize_key(@key, @scope) unless @meta[:inferred_key]
         @default = normalize_default(@default, @options || {})
       end
 
@@ -78,7 +79,7 @@ module I18nliner
       def normalize_arguments(args)
         raise InvalidSignatureError.new(@line, args) if args.empty?
 
-        @key, @options, *others = infer_arguments(args)
+        @key, @options, *others = infer_arguments(args, @meta)
 
         raise InvalidSignatureError.new(@line, args) if !others.empty?
         raise InvalidSignatureError.new(@line, args) unless @key.is_a?(Symbol) || @key.is_a?(String)
