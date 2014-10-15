@@ -22,6 +22,15 @@ module I18nliner
         process(@sexps)
       end
 
+      attr_reader :current_defn
+      def process_defn(exp)
+        exp.shift
+        @current_defn = exp.shift
+        process exp.shift until exp.empty?
+        @current_defn = nil
+        s()
+      end
+
       def process_call(exp)
         exp.shift
         receiver_exp = exp.shift

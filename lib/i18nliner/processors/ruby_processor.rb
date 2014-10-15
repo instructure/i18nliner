@@ -1,6 +1,7 @@
 require 'i18nliner/processors/abstract_processor'
 require 'i18nliner/extractors/ruby_extractor'
 require 'i18nliner/scope'
+require 'i18nliner/controller_scope'
 
 module I18nliner
   module Processors
@@ -21,8 +22,21 @@ module I18nliner
         File.read(file)
       end
 
-      def scope_for(path)
-        Scope.root
+      if defined?(::Rails) && ::Rails.version > '4'
+        CONTROLLER_PATH = %r{\A(.*/)?app/controllers/(.*)_controller\.rb\z}
+        def scope_for(path)
+          scope = path.dup
+          if scope.sub!(CONTROLLER_PATH, '\2')
+            scope = scope.gsub(/\/_?/, '.')
+            ControllerScope.new(scope, :allow_relative => true, :context => self)
+          else
+            Scope.root
+          end
+        end
+      else
+        def scope_for(path)
+          Scope.root
+        end
       end
 
       def pre_process(source)

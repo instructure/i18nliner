@@ -2,6 +2,7 @@ module I18nliner
   class Scope
     attr_reader :scope
     attr_reader :allow_relative
+    attr_reader :context
     alias :allow_relative? :allow_relative
     attr_accessor :remove_whitespace
     alias :remove_whitespace? :remove_whitespace
@@ -10,6 +11,7 @@ module I18nliner
       @scope = scope ? "#{scope}." : scope
       @allow_relative = options.fetch(:allow_relative, false)
       @remove_whitespace = options.fetch(:remove_whitespace, false)
+      @context = options.fetch(:context, nil)
     end
 
     def normalize_key(key)

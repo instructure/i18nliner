@@ -22,10 +22,15 @@ module I18nliner
         end
       end
 
+      VIEW_PATH = %r{\A(.*/)?app/views/(.*?)\.(erb|html\.erb)\z}
       def scope_for(path)
-        scope = path.gsub(/(\A|.*\/)app\/views\/|\.html\z|(\.html)?\.erb\z/, '')
-        scope = scope.gsub(/\/_?/, '.')
-        Scope.new(scope, :allow_relative => true, :remove_whitespace => true)
+        scope = path.dup
+        if scope.sub!(VIEW_PATH, '\2')
+          scope = scope.gsub(/\/_?/, '.')
+          Scope.new(scope, :allow_relative => true, :remove_whitespace => true, :context => self)
+        else
+          Scope.root
+        end
       end
     end
   end
