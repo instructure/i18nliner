@@ -23,6 +23,10 @@ module I18nliner
         I18n.localize(*args)
       end
       alias :l :localize
+
+      def self.included(klass)
+        klass.extend(self)
+      end
     end
   end
 end
