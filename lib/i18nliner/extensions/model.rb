@@ -7,13 +7,13 @@ module I18nliner
     module Model
       include Inferpolation
 
-      PATH = "app/models"
-      ALLOW_RELATIVE = false
+      def i18n_scope; end
 
       def translate(*args)
         key, options = CallHelpers.infer_arguments(args)
         options = inferpolate(options) if I18nliner.infer_interpolation_values
-        I18n.t(key, options)
+        options[:i18n_scope] = i18n_scope
+        I18n.translate(key, options)
       end
       alias :t :translate
       alias :t! :translate

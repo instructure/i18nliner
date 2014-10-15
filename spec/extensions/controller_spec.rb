@@ -1,16 +1,20 @@
 # encoding: UTF-8
-require 'i18nliner/extensions/view'
+require 'i18nliner/extensions/controller'
 require 'i18nliner/call_helpers'
 
-describe I18nliner::Extensions::View do
+describe I18nliner::Extensions::Controller do
   let(:i18n) do
     Module.new do
       extend(Module.new do
         def translate(*args)
           I18n.translate(*args)
         end
+
+        def controller_name
+          "foo"
+        end
       end)
-      extend I18nliner::Extensions::View
+      extend I18nliner::Extensions::Controller
     end
   end
 
@@ -24,24 +28,11 @@ describe I18nliner::Extensions::View do
       i18n.translate("hello %{foo}")
     end
 
-    it "should raise an error when given a block" do
-      expect {
-        i18n.translate(:foo) {
-          uhoh there was a bug with erb extraction or im doing it wrong
-        }
-      }.to raise_error I18nliner::InvalidBlockUsageError
-    end
-
-    it "should raise an error when given an incorrect number of arguments" do
-      expect {
-        i18n.translate
-      }.to raise_error /wrong number of arguments/
-    end
-
     it "should pass along its scope to I18n.t" do
       expect(I18n).to receive(:translate).with(:key, :default => "foo", :i18n_scope => i18n.i18n_scope)
       i18n.translate(:key, "foo")
     end
   end
 end
+
 

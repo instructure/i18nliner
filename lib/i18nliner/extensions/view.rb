@@ -7,8 +7,7 @@ module I18nliner
     module View
       include Inferpolation
 
-      PATH = "app/views"
-      ALLOW_RELATIVE = true
+      def i18n_scope; end
 
       def translate(*args)
         # if a block gets through to here, it either means:
@@ -18,6 +17,7 @@ module I18nliner
         raise ArgumentError.new("wrong number of arguments (0 for 1..3)") if args.empty? || args.size > 3
         key, options = CallHelpers.infer_arguments(args)
         options = inferpolate(options) if I18nliner.infer_interpolation_values
+        options[:i18n_scope] = i18n_scope
         super(key, options)
       end
       alias :t :translate
