@@ -38,4 +38,12 @@ describe I18nliner::Extensions::Inferpolation do
     options = {:default => "hello %{@lol} %{@bar.baz.lol}"}
     foo.inferpolate(options).should == options
   end
+
+  it "should work with pluralization hashes" do
+    options = {:default => {:one => "%{bar2} has 1 item", :other => "%{bar2} has %{count} items"}}
+    foo.inferpolate(options).should == {
+      :default => {:one => "%{bar2} has 1 item", :other => "%{bar2} has %{count} items"},
+      :bar2 => foo.bar2
+    }
+  end
 end

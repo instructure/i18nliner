@@ -4,8 +4,17 @@ module I18nliner
       def inferpolate(options)
         default = options[:default]
         return options unless default
+        if default.is_a?(Hash)
+          default.each { |key, value| inferpolate_value!(value, options) }
+        else
+          inferpolate_value!(default, options)
+        end
 
-        default.gsub!(/%\{((@)?\w+(.\w+)*)\}/).each do
+        options
+      end
+
+      def inferpolate_value!(value, options)
+        value.gsub!(/%\{((@)?\w+(.\w+)*)\}/).each do
           match = $~
           key = $1
           ivar = $2
@@ -21,7 +30,6 @@ module I18nliner
           options[new_key.to_sym] = value
           "%{#{new_key}}"
         end
-        options
       end
     end
   end
