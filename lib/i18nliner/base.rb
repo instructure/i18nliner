@@ -25,6 +25,10 @@ module I18nliner
 
   def self.setting(key, value)
     instance_eval <<-CODE
+      def #{key}=(value)
+        @#{key} = value
+      end
+
       def #{key}(value = nil)
         if value && block_given?
           begin
