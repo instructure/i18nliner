@@ -33,15 +33,31 @@ describe I18nliner::Extensions::Core do
       i18n.translate("light", :count => 1)
     end
 
-    it "should apply wrappers" do
-      result = i18n.translate("Hello *bob*. Click **here**", :wrappers => ['<b>\1</b>', '<a href="/">\1</a>'])
-      result.should == "Hello <b>bob</b>. Click <a href=\"/\">here</a>"
-      result.should be_html_safe
-    end
+    context "with wrappers" do
+      it "should apply a single wrapper" do
+        result = i18n.translate("Hello *bob*.", :wrapper => '<b>\1</b>')
+        result.should == "Hello <b>bob</b>."
+      end
 
-    it "should html-escape the default when applying wrappers" do
-      i18n.translate("*bacon* > narwhals", :wrappers => ['<b>\1</b>']).
-        should == "<b>bacon</b> &gt; narwhals"
+      it "should be html-safe" do
+        result = i18n.translate("Hello *bob*.", :wrapper => '<b>\1</b>')
+        result.should be_html_safe
+      end
+
+      it "should apply multiple wrappers" do
+        result = i18n.translate("Hello *bob*. Click **here**", :wrappers => ['<b>\1</b>', '<a href="/">\1</a>'])
+        result.should == "Hello <b>bob</b>. Click <a href=\"/\">here</a>"
+      end
+
+      it "should apply multiple wrappers with arbitrary delimiters" do
+        result = i18n.translate("Hello !!!bob!!!. Click ???here???", :wrappers => {'!!!' => '<b>\1</b>', '???' => '<a href="/">\1</a>'})
+        result.should == "Hello <b>bob</b>. Click <a href=\"/\">here</a>"
+      end
+
+      it "should html-escape the default when applying wrappers" do
+        i18n.translate("*bacon* > narwhals", :wrappers => ['<b>\1</b>']).
+          should == "<b>bacon</b> &gt; narwhals"
+      end
     end
   end
 

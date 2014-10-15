@@ -15,7 +15,7 @@ module I18nliner
           options[:default] = CallHelpers.normalize_default(default, options)
         end
 
-        wrappers = options.delete(:wrappers)
+        wrappers = options.delete(:wrappers) || options.delete(:wrapper)
         result = super(key, options)
         if wrappers
           result = apply_wrappers(result, wrappers)
@@ -51,7 +51,8 @@ module I18nliner
 
       def apply_wrappers(string, wrappers)
         string = string.html_safe? ? string.dup : ERB::Util.h(string)
-        if wrappers.is_a?(Array)
+        unless wrappers.is_a?(Hash)
+          wrappers = Array(wrappers)
           wrappers = Hash[wrappers.each_with_index.map{ |w, i| ['*' * (1 + i), w]}]
         end
         wrappers.sort_by{ |k, v| -k.length }.each do |k, v|
