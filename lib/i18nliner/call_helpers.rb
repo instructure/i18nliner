@@ -7,8 +7,8 @@ module I18nliner
     ALLOWED_PLURALIZATION_KEYS = [:zero, :one, :few, :many, :other]
     REQUIRED_PLURALIZATION_KEYS = [:one, :other]
 
-    def normalize_key(key, scope = Scope.root)
-      scope.normalize_key(key.to_s)
+    def normalize_key(key, scope, inferred)
+      scope.normalize_key(key.to_s, inferred)
     end
 
     def normalize_default(default, translate_options = {}, options = {})
@@ -78,6 +78,7 @@ module I18nliner
     def key_provided?(key_or_default = nil, default_or_options = nil, maybe_options = nil, *others)
       return false if key_or_default.is_a?(Hash)
       return true if key_or_default.is_a?(Symbol)
+      raise ArgumentError.new("invalid key_or_default argument. expected String, Symbol or Hash, got #{key_or_default.class}") unless key_or_default.is_a?(String)
       return true if default_or_options.is_a?(String)
       return true if maybe_options
       return true if key_or_default =~ /\A\.?(\w+\.)+\w+\z/
@@ -90,21 +91,26 @@ module I18nliner
       (hash.keys - ALLOWED_PLURALIZATION_KEYS).size == 0
     end
 
-    def infer_arguments(args, meta = {})
+    def infer_arguments(args)
+      raise ArgumentError.new("wrong number of arguments (#{args.size} for 1..3)") if args.empty? || args.size > 3
       if args.size == 2 && args[1].is_a?(Hash) && args[1][:default]
         return args
       end
 
       has_key = key_provided?(*args)
-      meta[:inferred_key] = !has_key
       args.unshift infer_key(args[0]) unless has_key
 
+      default = nil
       default_or_options = args[1]
       if args[2] || default_or_options.is_a?(String) || pluralization_hash?(default_or_options)
-        options = args[2] ||= {}
-        options[:default] = args.delete_at(1) if options.is_a?(Hash)
+        default = args.delete_at(1)
       end
       args << {} if args.size == 1
+      options = args[1]
+      raise ArgumentError.new("invalid default translation. expected Hash or String, got #{default.class}") unless default.nil? || default.is_a?(String) || default.is_a?(Hash)
+      raise ArgumentError.new("invalid options argument. expected Hash, got #{options.class}") unless options.is_a?(Hash)
+      options[:default] = default if default
+      options[:i18n_inferred_key] = true unless has_key
       args
     end
 

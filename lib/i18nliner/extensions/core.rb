@@ -9,7 +9,8 @@ module I18nliner
         key, options = *CallHelpers.infer_arguments(args)
 
         scope = options.delete(:i18n_scope) || Scope.root
-        key = CallHelpers.normalize_key(key, scope)
+        inferred_key = options.delete(:i18n_inferred_key)
+        key = CallHelpers.normalize_key(key, scope, inferred_key)
 
         if default = options[:default]
           options[:default] = CallHelpers.normalize_default(default, options)
@@ -22,6 +23,8 @@ module I18nliner
         end
 
         result
+      rescue ArgumentError
+        raise
       end
       alias :t :translate
       alias :t! :translate

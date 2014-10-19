@@ -29,7 +29,7 @@ module I18nliner
       end
 
       def normalize
-        @key = normalize_key(@key, @scope) unless @meta[:inferred_key]
+        @key = normalize_key(@key, @scope, @options[:i18n_inferred_key])
         @default = normalize_default(@default, @options || {}, {:remove_whitespace => @scope.remove_whitespace?})
       end
 
@@ -77,15 +77,11 @@ module I18nliner
       # default_string [, options]
       # default_hash, options
       def normalize_arguments(args)
-        raise InvalidSignatureError.new(@line, args) if args.empty?
-
-        @key, @options, *others = infer_arguments(args, @meta)
-
-        raise InvalidSignatureError.new(@line, args) if !others.empty?
-        raise InvalidSignatureError.new(@line, args) unless @key.is_a?(Symbol) || @key.is_a?(String)
-        raise InvalidSignatureError.new(@line, args) unless @options.nil? || @options.is_a?(Hash)
-        @default = @options.delete(:default) if @options
+        @key, @options = infer_arguments(args)
+        @default = @options.delete(:default)
         raise InvalidSignatureError.new(@line, args) unless @default.nil? || @default.is_a?(String) || @default.is_a?(Hash)
+      rescue ArgumentError
+        raise InvalidSignatureError.new(@line, args)
       end
 
       def validate_interpolation_values(key, default)
