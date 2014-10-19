@@ -331,16 +331,10 @@ modification.
 
 I18nliner requires at least Ruby 1.9.3 and Rails 3.
 
-## What about JavaScript/Handlebars?
+## Related Projects
 
-[Coming](https://github.com/jenseng/i18nliner-js) [soon](https://github.com/fivetanley/i18ninliner-handlebars).
-I18nliner was inspired by some [I18n extensions](https://github.com/instructure/canvas-lms/tree/master/lib/i18n_extraction)
-I did in [Canvas-LMS](https://github.com/instructure/canvas-lms). While
-it also has the JavaScript/Handlebars equivalents, they are tightly
-coupled to Canvas-LMS and are written in Ruby. So basically we're talking
-a full reimplementation in JavaScript using
-[esprima](http://esprima.org/) instead of the [shameful, brittle, regexy hack](http://cdn.memegenerator.net/instances/400x/24091937.jpg)
-that is js_extractor.
+* [i18nliner-js](https://github.com/jenseng/i18nliner-js)
+* [i18nliner-handlebars](https://github.com/fivetanley/i18nliner-handlebars)
 
 ## License
 
