@@ -11,6 +11,10 @@ module I18nliner
       TRANSLATE_CALLS = [:t, :translate]
       attr_reader :current_line
 
+      def self.pattern
+        /(^|\W)(t|translate)(\W|$)/
+      end
+
       def initialize(sexps, scope)
         @sexps = sexps
         @scope = scope

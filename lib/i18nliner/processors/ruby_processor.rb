@@ -9,6 +9,7 @@ module I18nliner
       default_pattern '*.rb'
 
       def check_contents(source, scope = Scope.new)
+        return if source !~ Extractors::RubyExtractor.pattern
         sexps = RubyParser.new.parse(pre_process(source))
         extractor = Extractors::RubyExtractor.new(sexps, scope)
         extractor.each_translation do |key, value|
