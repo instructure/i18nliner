@@ -237,7 +237,7 @@ module I18nliner
         end
 
         def options_to_ruby(options)
-          options["i18n_inferred_key"] = "true"
+          options["i18nliner_inferred_key"] = "true"
           options.map do |key, value|
             ":" << key << " => (" << value << ")"
           end.join(", ")

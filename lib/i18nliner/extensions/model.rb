@@ -7,12 +7,12 @@ module I18nliner
     module Model
       include Inferpolation
 
-      def i18n_scope; end
+      def i18nliner_scope; end
 
       def translate(*args)
         key, options = CallHelpers.infer_arguments(args)
         options = inferpolate(options) if I18nliner.infer_interpolation_values
-        options[:i18n_scope] = i18n_scope
+        options[:i18nliner_scope] = i18nliner_scope
         I18n.translate(key, options)
       end
       alias :t :translate

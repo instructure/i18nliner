@@ -8,8 +8,8 @@ module I18nliner
       def translate(*args)
         key, options = *CallHelpers.infer_arguments(args)
 
-        scope = options.delete(:i18n_scope) || Scope.root
-        inferred_key = options.delete(:i18n_inferred_key)
+        scope = options.delete(:i18nliner_scope) || Scope.root
+        inferred_key = options.delete(:i18nliner_inferred_key)
         key = CallHelpers.normalize_key(key, scope, inferred_key)
 
         if default = options[:default]

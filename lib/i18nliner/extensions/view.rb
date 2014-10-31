@@ -7,7 +7,7 @@ module I18nliner
     module View
       include Inferpolation
 
-      def i18n_scope; end
+      def i18nliner_scope; end
 
       def translate(*args)
         # if a block gets through to here, it either means:
@@ -16,7 +16,7 @@ module I18nliner
         raise InvalidBlockUsageError.new("block translate calls need to be output (i.e. `<%=`) and the block body must be of the form `%>your string<%`") if block_given?
         key, options = CallHelpers.infer_arguments(args)
         options = inferpolate(options) if I18nliner.infer_interpolation_values
-        options[:i18n_scope] = i18n_scope
+        options[:i18nliner_scope] = i18nliner_scope
         super(key, options)
       rescue ArgumentError
         raise

@@ -17,12 +17,12 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
 
     it "should transform t block expressions" do
       process("<%= t do %>hello world!<% end %>").should ==
-        '<%= t :key, "hello world!", :i18n_inferred_key => (true) %>'
+        '<%= t :key, "hello world!", :i18nliner_inferred_key => (true) %>'
     end
 
     it "should remove extraneous whitespace from the default" do
       process("<%= t do %> ohai!  lulz\t <% end %>").should ==
-        '<%= t :key, "ohai! lulz", :i18n_inferred_key => (true) %>'
+        '<%= t :key, "ohai! lulz", :i18nliner_inferred_key => (true) %>'
     end
 
     # so that line numbers are close-ish when you get an error in a
@@ -39,7 +39,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED.strip_heredoc
-        <%= t :key, "ohai! %{test} lulz", :test => (test), :i18n_inferred_key => (true)
+        <%= t :key, "ohai! %{test} lulz", :test => (test), :i18nliner_inferred_key => (true)
 
 
 
@@ -57,7 +57,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         SOURCE
       should == <<-EXPECTED
         <%= form_for do %>
-          <%= t :key, "Your Name", :i18n_inferred_key => (true) %>
+          <%= t :key, "Your Name", :i18nliner_inferred_key => (true) %>
           <input>
         <% end %>
         EXPECTED
@@ -87,7 +87,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :key, "*bold*, or even **combos** get wrapper'd", :i18n_inferred_key => (true), :wrappers => ["<b>\\\\1</b>", "<a href=\\\"#\\\"><i><img>\\\\1</i></a>"] %>
+        <%= t :key, "*bold*, or even **combos** get wrapper'd", :i18nliner_inferred_key => (true), :wrappers => ["<b>\\\\1</b>", "<a href=\\\"#\\\"><i><img>\\\\1</i></a>"] %>
         EXPECTED
     end
 
@@ -104,7 +104,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :key, "You should *create a profile*. idk why **this link** has concatention", :i18n_inferred_key => (true), :wrappers => [link_to("\\\\1", "/profile"), link_to("\\\\1", "/zomg")] %>
+        <%= t :key, "You should *create a profile*. idk why **this link** has concatention", :i18nliner_inferred_key => (true), :wrappers => [link_to("\\\\1", "/profile"), link_to("\\\\1", "/zomg")] %>
         EXPECTED
     end
 
@@ -115,7 +115,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :key, "Your account rep is *%{user_name}*", :user_name => (@user.name), :i18n_inferred_key => (true), :wrappers => [link_to("\\\\1", "/user/\#{@user.id}")] %>
+        <%= t :key, "Your account rep is *%{user_name}*", :user_name => (@user.name), :i18nliner_inferred_key => (true), :wrappers => [link_to("\\\\1", "/user/\#{@user.id}")] %>
         EXPECTED
     end
 
@@ -129,7 +129,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :key, "the wrappers for **these** **links** are the same, as are the ones for *these* *tags*", :i18n_inferred_key => (true), :wrappers => ["<b>\\\\1</b>", link_to("\\\\1", url)] %>
+        <%= t :key, "the wrappers for **these** **links** are the same, as are the ones for *these* *tags*", :i18nliner_inferred_key => (true), :wrappers => ["<b>\\\\1</b>", link_to("\\\\1", url)] %>
         EXPECTED
     end
 
@@ -140,7 +140,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :key, "Hello, %{name}", :name => (name), :i18n_inferred_key => (true) %>
+        <%= t :key, "Hello, %{name}", :name => (name), :i18nliner_inferred_key => (true) %>
         EXPECTED
     end
 
@@ -151,7 +151,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :key, "Go to *your account*", :i18n_inferred_key => (true), :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{name}\\">\\\\1</a>"] %>
+        <%= t :key, "Go to *your account*", :i18nliner_inferred_key => (true), :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{name}\\">\\\\1</a>"] %>
         EXPECTED
     end
 
@@ -165,7 +165,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :key, "Go to *your account*", :i18n_inferred_key => (true), :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{t :key, \"manage account stuffs, %{name}\", :name => (name), :i18n_inferred_key => (true)}\\">\\\\1</a>"] %>
+        <%= t :key, "Go to *your account*", :i18nliner_inferred_key => (true), :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{t :key, \"manage account stuffs, %{name}\", :name => (name), :i18nliner_inferred_key => (true)}\\">\\\\1</a>"] %>
         EXPECTED
     end
 
@@ -176,7 +176,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :key, "Create %{input_name_count} groups", :input_name_count => ("<input name=\\"count\\">".html_safe), :i18n_inferred_key => (true) %>
+        <%= t :key, "Create %{input_name_count} groups", :input_name_count => ("<input name=\\"count\\">".html_safe), :i18nliner_inferred_key => (true) %>
         EXPECTED
     end
 
@@ -187,7 +187,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
         <% end %>
         SOURCE
       should == <<-EXPECTED
-        <%= t :key, "© %{year} ACME Corp. All Rights Reserved. Our lawyers > your lawyers", :year => (year), :i18n_inferred_key => (true) %>
+        <%= t :key, "© %{year} ACME Corp. All Rights Reserved. Our lawyers > your lawyers", :year => (year), :i18nliner_inferred_key => (true) %>
         EXPECTED
     end
   end

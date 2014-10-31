@@ -110,7 +110,7 @@ module I18nliner
       raise ArgumentError.new("invalid default translation. expected Hash or String, got #{default.class}") unless default.nil? || default.is_a?(String) || default.is_a?(Hash)
       raise ArgumentError.new("invalid options argument. expected Hash, got #{options.class}") unless options.is_a?(Hash)
       options[:default] = default if default
-      options[:i18n_inferred_key] = true unless has_key
+      options[:i18nliner_inferred_key] = true unless has_key
       args
     end
 
