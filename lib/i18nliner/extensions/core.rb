@@ -10,7 +10,7 @@ module I18nliner
 
         scope = options.delete(:i18nliner_scope) || Scope.root
         inferred_key = options.delete(:i18nliner_inferred_key)
-        key = CallHelpers.normalize_key(key, scope, inferred_key)
+        key = CallHelpers.normalize_key(key, scope, inferred_key, options[:scope])
 
         if default = options[:default]
           options[:default] = CallHelpers.normalize_default(default, options)

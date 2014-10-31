@@ -29,7 +29,7 @@ module I18nliner
       end
 
       def normalize
-        @key = normalize_key(@key, @scope, @options[:i18nliner_inferred_key])
+        @key = normalize_key(@key, @scope, @options[:i18nliner_inferred_key], @options[:scope])
         @default = normalize_default(@default, @options || {}, {:remove_whitespace => @scope.remove_whitespace?})
       end
 

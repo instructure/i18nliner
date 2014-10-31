@@ -7,8 +7,8 @@ module I18nliner
     ALLOWED_PLURALIZATION_KEYS = [:zero, :one, :few, :many, :other]
     REQUIRED_PLURALIZATION_KEYS = [:one, :other]
 
-    def normalize_key(key, scope, inferred)
-      scope.normalize_key(key.to_s, inferred)
+    def normalize_key(key, scope, inferred, i18n_scope)
+      scope.normalize_key(key.to_s, inferred, i18n_scope)
     end
 
     def normalize_default(default, translate_options = {}, options = {})

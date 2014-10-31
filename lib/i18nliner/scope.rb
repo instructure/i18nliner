@@ -14,7 +14,7 @@ module I18nliner
       @context = options.fetch(:context, nil)
     end
 
-    def normalize_key(key, inferred)
+    def normalize_key(key, inferred, i18n_scope)
       if allow_relative? && (key = key.dup) && key.sub!(/\A\./, '')
         scope + key
       else
