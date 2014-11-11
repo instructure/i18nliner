@@ -50,6 +50,16 @@ describe I18nliner::Extractors::TranslateCall do
       call.default.should == "foo"
     end
 
+    it "should not extract symbol defaults" do
+      call = call(no_scope, :key, :default => :bar_key)
+      call.default.should be_nil
+    end
+
+    it "should extract the first string default" do
+      call = call(no_scope, :key, :default => [:foo_key, :bar_key, "baz"])
+      call.default.should == "baz"
+    end
+
     it "should ensure options is a hash, if provided" do
       expect {
         call(no_scope, :key, "value", Object.new)
@@ -103,6 +113,7 @@ describe I18nliner::Extractors::TranslateCall do
   describe "normalization" do
     it "should make keys absolute if scoped" do
       call(scope, '.key', "value").translations[0][0].should =~ /\Afoo\.key/
+      call(scope, ['.key1', '.key2'], "value").translations.map(&:first).should == ['foo.key1', 'foo.key2']
     end
 
     it "should strip whitespace from defaults" do

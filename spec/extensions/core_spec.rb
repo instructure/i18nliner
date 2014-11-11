@@ -33,6 +33,16 @@ describe I18nliner::Extensions::Core do
       i18n.translate("light", :count => 1)
     end
 
+    it "should not stringify nil keys" do
+      expect(i18n).to receive(:simple_translate).with(nil, {:default => [:foo, :bar]})
+      i18n.translate(nil, {:default => [:foo, :bar]})
+    end
+
+    it "should stringify array keys, but not the array itself" do
+      expect(i18n).to receive(:simple_translate).with(["bar", "baz"], {})
+      i18n.translate([:bar, :baz])
+    end
+
     context "with wrappers" do
       it "should apply a single wrapper" do
         result = i18n.translate("Hello *bob*.", :wrapper => '<b>\1</b>')

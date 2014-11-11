@@ -15,7 +15,13 @@ module I18nliner
     end
 
     def normalize_key(key, inferred, i18n_scope)
-      if allow_relative? && (key = key.dup) && key.sub!(/\A\./, '')
+      return key if key.nil?
+      if key.is_a?(Array)
+        return key.map { |k| normalize_key(k, inferred, i18n_scope) }
+      end
+
+      key = key.to_s.dup
+      if allow_relative? && key.sub!(/\A\./, '')
         scope + key
       else
         key

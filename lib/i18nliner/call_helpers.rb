@@ -8,7 +8,7 @@ module I18nliner
     REQUIRED_PLURALIZATION_KEYS = [:one, :other]
 
     def normalize_key(key, scope, inferred, i18n_scope)
-      scope.normalize_key(key.to_s, inferred, i18n_scope)
+      scope.normalize_key(key, inferred, i18n_scope)
     end
 
     def normalize_default(default, translate_options = {}, options = {})
@@ -77,8 +77,8 @@ module I18nliner
     # default_hash, options
     def key_provided?(key_or_default = nil, default_or_options = nil, maybe_options = nil, *others)
       return false if key_or_default.is_a?(Hash)
-      return true if key_or_default.is_a?(Symbol)
-      raise ArgumentError.new("invalid key_or_default argument. expected String, Symbol or Hash, got #{key_or_default.class}") unless key_or_default.is_a?(String)
+      return true if key_or_default.is_a?(Symbol) || key_or_default.nil? || key_or_default.is_a?(Array)
+      raise ArgumentError.new("invalid key_or_default argument. expected String, Symbol, Array, Hash or nil, got #{key_or_default.class}") unless key_or_default.is_a?(String)
       return true if default_or_options.is_a?(String)
       return true if maybe_options
       return true if key_or_default =~ /\A\.?(\w+\.)+\w+\z/

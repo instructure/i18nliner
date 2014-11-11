@@ -34,11 +34,15 @@ module I18nliner
       end
 
       def translations
-        return [] unless @default
-        return [[@key, @default]] if @default.is_a?(String)
-        @default.map { |key, value|
-          ["#{@key}.#{key}", value]
-        }
+        return [] unless default
+        keys = Array(key)
+        keys.inject([]) do |result, key|
+          if default.is_a?(String)
+            result << [key, default]
+          else
+            result.concat default.map { |dk, dv| ["#{key}.#{dk}", dv] }
+          end
+        end
       end
 
       def validate_key
@@ -79,6 +83,8 @@ module I18nliner
       def normalize_arguments(args)
         @key, @options = infer_arguments(args)
         @default = @options.delete(:default)
+        @default = nil if @default.is_a?(Symbol)
+        @default = @default.detect { |d| d.is_a?(String) } if @default.is_a?(Array)
         raise InvalidSignatureError.new(@line, args) unless @default.nil? || @default.is_a?(String) || @default.is_a?(Hash)
       rescue ArgumentError
         raise InvalidSignatureError.new(@line, args)
