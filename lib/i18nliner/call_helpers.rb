@@ -1,5 +1,6 @@
 require 'zlib'
 require 'i18n'
+require 'active_support/core_ext/string/inflections'
 require 'i18nliner/base'
 
 module I18nliner
@@ -46,8 +47,9 @@ module I18nliner
 
     def infer_key(default, translate_options = {})
       return unless default && (default.is_a?(String) || default.is_a?(Hash))
+      default = normalize_default(default, translate_options, :remove_whitespace => true)
       default = default[:other].to_s if default.is_a?(Hash)
-      keyify(normalize_default(default, translate_options, :remove_whitespace => true))
+      keyify(default)
     end
 
     def keyify_underscored(string)
@@ -101,7 +103,7 @@ module I18nliner
       end
 
       has_key = key_provided?(*args)
-      args.unshift infer_key(args[0]) unless has_key
+      args.unshift nil unless has_key
 
       default = nil
       default_or_options = args[1]
@@ -114,6 +116,9 @@ module I18nliner
       raise ArgumentError.new("invalid options argument. expected Hash, got #{options.class}") unless options.is_a?(Hash)
       options[:default] = default if default
       options[:i18nliner_inferred_key] = true unless has_key
+      unless has_key
+        args[0] = infer_key(default, options)
+      end
       args
     end
 

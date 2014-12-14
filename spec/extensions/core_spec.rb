@@ -38,7 +38,7 @@ describe I18nliner::Extensions::Core do
     end
 
     it "should infer pluralization hashes" do
-      expect(i18n).to receive(:simple_translate).with("light_6feedaaa", :default => {:one => "1 light", :other => "%{count} lights"}, count: 1)
+      expect(i18n).to receive(:simple_translate).with("count_lights_58339e29", :default => {:one => "1 light", :other => "%{count} lights"}, count: 1)
       i18n.translate("light", :count => 1)
     end
 

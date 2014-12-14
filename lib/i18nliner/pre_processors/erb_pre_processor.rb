@@ -229,7 +229,7 @@ module I18nliner
           default.strip!
           default.gsub!(/\s+/, ' ')
 
-          key = infer_key(default)
+          key = infer_key(default, options)
           default = default.inspect
           options = options_to_ruby(options)
           wrappers = wrappers_to_ruby(wrappers)

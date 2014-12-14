@@ -127,6 +127,18 @@ describe I18nliner::Extractors::TranslateCall do
   end
 
   describe "pluralization" do
+    describe "keys" do
+      it "should be inferred from a word" do
+        translations = call(no_scope, "person", {:count => Object.new}).translations
+        translations.map(&:first).sort.should == ["count_people_489946e7.one", "count_people_489946e7.other"]
+      end
+
+      it "should be inferred from a hash" do
+        translations = call(no_scope, {:one => "just you", :other => "lotsa peeps"}, {:count => Object.new}).translations
+        translations.map(&:first).sort.should == ["lotsa_peeps_41499c40.one", "lotsa_peeps_41499c40.other"]
+      end
+    end
+
     describe "defaults" do
       it "should be inferred" do
         translations = call(no_scope, "person", {:count => Object.new}).translations
