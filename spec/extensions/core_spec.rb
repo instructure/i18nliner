@@ -28,6 +28,15 @@ describe I18nliner::Extensions::Core do
       i18n.translate("Hello %{name}", :name => "bob")
     end
 
+    it "should not mutate the arguments passed in" do
+      expect(i18n).to receive(:simple_translate).with("my.key", :default => "ohai whitespace ")
+      key = "my.key".freeze
+      default = " ohai whitespace ".freeze
+      expect {
+        i18n.translate(key, default)
+      }.to_not raise_error
+    end
+
     it "should infer pluralization hashes" do
       expect(i18n).to receive(:simple_translate).with("light_6feedaaa", :default => {:one => "1 light", :other => "%{count} lights"}, count: 1)
       i18n.translate("light", :count => 1)

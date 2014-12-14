@@ -10,6 +10,7 @@ describe I18nliner::Extractors::TranslateCall do
 
   let(:no_scope) { I18nliner::Scope.new(nil) }
   let(:scope) { I18nliner::Scope.new("foo", :auto => true, :allow_relative => true) }
+  let(:erb_scope) { I18nliner::Scope.new(nil, :remove_whitespace => true) }
 
   describe "signature" do
     it "should reject extra arguments" do
@@ -116,8 +117,12 @@ describe I18nliner::Extractors::TranslateCall do
       call(scope, ['.key1', '.key2'], "value").translations.map(&:first).should == ['foo.key1', 'foo.key2']
     end
 
-    it "should strip whitespace from defaults" do
-      call(no_scope, "\t whitespace \n\t ").translations[0][1].should == "whitespace"
+    it "should strip leading whitespace from defaults" do
+      call(no_scope, "\t white  space \n\t ").translations[0][1].should == "white  space \n\t "
+    end
+
+    it "should strip all whitespace from defaults if the scope requests it" do
+      call(erb_scope, "\t white  space \n\t ").translations[0][1].should == "white space"
     end
   end
 

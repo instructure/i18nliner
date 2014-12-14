@@ -13,17 +13,19 @@ module I18nliner
 
     def normalize_default(default, translate_options = {}, options = {})
       default = infer_pluralization_hash(default, translate_options)
-      normalize_whitespace!(default, options)
+      default = normalize_whitespace(default, options)
       default
     end
 
-    def normalize_whitespace!(default, options)
-      if default.is_a?(Hash)
-        default.each { |key, value| normalize_whitespace!(value, options) }
-        return
-      end
+    def normalize_whitespace(default, options)
+      return default unless default.is_a?(String) || default.is_a?(Hash)
 
-      return unless default.is_a?(String)
+      default = default.dup
+
+      if default.is_a?(Hash)
+        default.each { |key, value| default[key] = normalize_whitespace(value, options) }
+        return default
+      end
 
       if options[:remove_whitespace]
         default.gsub!(/\s+/, ' ')
@@ -32,6 +34,7 @@ module I18nliner
         default.sub!(/\s*\n\z/, '')
         default.lstrip!
       end
+      default
     end
 
     def infer_pluralization_hash(default, translate_options)
