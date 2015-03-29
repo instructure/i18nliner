@@ -85,6 +85,7 @@ describe I18nliner::Extractors::TranslateCall do
 
     it "should transliterate underscored keys according to the default locale" do
       orig_locale = I18n.default_locale
+      I18n.available_locales = [:en, :de]
       I18n.backend.store_translations(:de, :i18n => {
         :transliterate => {
           :rule => {

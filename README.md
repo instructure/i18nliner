@@ -335,7 +335,8 @@ I18nliner requires at least Ruby 1.9.3 and Rails 3.
 
 * [i18nliner-js](https://github.com/jenseng/i18nliner-js)
 * [i18nliner-handlebars](https://github.com/fivetanley/i18nliner-handlebars)
+* [react-i18nliner](https://github.com/jenseng/react-i18nliner)
 
 ## License
 
-Copyright (c) 2014 Jon Jensen, released under the MIT license
+Copyright (c) 2015 Jon Jensen, released under the MIT license
