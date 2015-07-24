@@ -19,13 +19,15 @@ module I18nliner
     end
 
     def normalize_whitespace(default, options)
-      return default unless default.is_a?(String) || default.is_a?(Hash)
+      return default unless default.is_a?(String) || default.is_a?(Hash) || default.is_a?(Array)
 
       default = default.dup
 
       if default.is_a?(Hash)
         default.each { |key, value| default[key] = normalize_whitespace(value, options) }
         return default
+      elsif default.is_a?(Array)
+        return default.map{|value| value.is_a?(String) ? normalize_whitespace(value, options) : value}
       end
 
       if options[:remove_whitespace]
@@ -39,10 +41,11 @@ module I18nliner
     end
 
     def infer_pluralization_hash(default, translate_options)
-      return default unless default.is_a?(String) &&
-                            default =~ /\A[\w\-]+\z/ &&
+      str = (default.is_a?(Array) && default.size == 1) ? default.first : default
+      return default unless str.is_a?(String) &&
+                            str =~ /\A[\w\-]+\z/ &&
                             translate_options.include?(:count)
-      {:one => "1 #{default}", :other => "%{count} #{default.pluralize}"}
+      {:one => "1 #{str}", :other => "%{count} #{str.pluralize}"}
     end
 
     def infer_key(default, translate_options = {})
