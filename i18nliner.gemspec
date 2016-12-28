@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.files = %w(LICENSE.txt Rakefile README.md) + Dir['{lib,spec}/**/*.{rb,rake}']
   s.add_dependency('activesupport', '>= 3.0')
   s.add_dependency('ruby_parser', '~> 3.2')
-  s.add_dependency('sexp_processor', '~> 4.4.0')
+  s.add_dependency('sexp_processor', '~> 4.4')
   s.add_dependency('ruby2ruby', '~> 2.0')
   s.add_dependency('globby', '>= 0.1.1')
   s.add_dependency('erubis', '~> 2.7.0')
