@@ -5,7 +5,7 @@ require 'active_support/core_ext/string/strip.rb'
 
 describe I18nliner::PreProcessors::ErbPreProcessor do
   before do
-    I18nliner::PreProcessors::ErbPreProcessor::TBlock.any_instance.stub(:infer_key).and_return(:key)
+    allow_any_instance_of(I18nliner::PreProcessors::ErbPreProcessor::TBlock).to receive(:infer_key).and_return(:key)
   end
 
   describe ".process" do
@@ -16,13 +16,13 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
     end
 
     it "should transform t block expressions" do
-      process("<%= t do %>hello world!<% end %>").should ==
-        '<%= t :key, "hello world!", :i18nliner_inferred_key => (true) %>'
+      expect(process("<%= t do %>hello world!<% end %>")).to eq(
+        '<%= t :key, "hello world!", :i18nliner_inferred_key => (true) %>')
     end
 
     it "should remove extraneous whitespace from the default" do
-      process("<%= t do %> ohai!  lulz\t <% end %>").should ==
-        '<%= t :key, "ohai! lulz", :i18nliner_inferred_key => (true) %>'
+      expect(process("<%= t do %> ohai!  lulz\t <% end %>")).to eq(
+        '<%= t :key, "ohai! lulz", :i18nliner_inferred_key => (true) %>')
     end
 
     # so that line numbers are close-ish when you get an error in a
@@ -30,7 +30,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
     # match up perfectly, but it will at least point to the start of the
     # t-block
     it "should preserve all newlines in the generated erb" do
-      process(<<-SOURCE.strip_heredoc, false).
+      expect(process(<<-SOURCE.strip_heredoc, false)).
         <%= t do
         %>
           ohai!
@@ -38,7 +38,7 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
           lulz
         <% end %>
         SOURCE
-      should == <<-EXPECTED.strip_heredoc
+      to eq <<-EXPECTED.strip_heredoc
         <%= t :key, "ohai! %{test} lulz", :test => (test), :i18nliner_inferred_key => (true)
 
 
@@ -49,13 +49,13 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
     end
 
     it "should not translate other block expressions" do
-      process(<<-SOURCE).
+      expect(process(<<-SOURCE)).
         <%= form_for do %>
           <%= t do %>Your Name<% end %>
           <input>
         <% end %>
         SOURCE
-      should == <<-EXPECTED
+      to eq <<-EXPECTED
         <%= form_for do %>
           <%= t :key, "Your Name", :i18nliner_inferred_key => (true) %>
           <input>
@@ -81,12 +81,12 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
     end
 
     it "should create wrappers for markup" do
-      process(<<-SOURCE).
+      expect(process(<<-SOURCE)).
         <%= t do %>
           <b>bold</b>, or even <a href="#"><i><img>combos</i></a> get wrapper'd
         <% end %>
         SOURCE
-      should == <<-EXPECTED
+      to eq <<-EXPECTED
         <%= t :key, "*bold*, or even **combos** get wrapper'd", :i18nliner_inferred_key => (true), :wrappers => ["<b>\\\\1</b>", "<a href=\\\"#\\\"><i><img>\\\\1</i></a>"] %>
         EXPECTED
     end
@@ -97,30 +97,30 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
     end
 
     it "should create wrappers for link_to calls with string content" do
-      process(<<-SOURCE).
+      expect(process(<<-SOURCE)).
         <%= t do %>
           You should <%= link_to("create a profile", "/profile") %>.
           idk why <%= link_to "this " + "link", "/zomg" %> has concatention
         <% end %>
         SOURCE
-      should == <<-EXPECTED
+      to eq <<-EXPECTED
         <%= t :key, "You should *create a profile*. idk why **this link** has concatention", :i18nliner_inferred_key => (true), :wrappers => [link_to("\\\\1", "/profile"), link_to("\\\\1", "/zomg")] %>
         EXPECTED
     end
 
     it "should create wrappers for link_to calls with other content" do
-      process(<<-SOURCE).
+      expect(process(<<-SOURCE)).
         <%= t do %>
           Your account rep is <%= link_to(@user.name, "/user/\#{@user.id}") %>
         <% end %>
         SOURCE
-      should == <<-EXPECTED
+      to eq <<-EXPECTED
         <%= t :key, "Your account rep is *%{user_name}*", :user_name => (@user.name), :i18nliner_inferred_key => (true), :wrappers => [link_to("\\\\1", "/user/\#{@user.id}")] %>
         EXPECTED
     end
 
     it "should reuse identical wrappers" do
-      process(<<-SOURCE).
+      expect(process(<<-SOURCE)).
         <%= t do %>
           the wrappers for
           <%= link_to "these", url %> <%= link_to "links", url %> are the same,
@@ -128,29 +128,29 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
           <b>these</b> <b>tags</b>
         <% end %>
         SOURCE
-      should == <<-EXPECTED
+      to eq <<-EXPECTED
         <%= t :key, "the wrappers for **these** **links** are the same, as are the ones for *these* *tags*", :i18nliner_inferred_key => (true), :wrappers => ["<b>\\\\1</b>", link_to("\\\\1", url)] %>
         EXPECTED
     end
 
     it "should generate placeholders for inline expressions" do
-      process(<<-SOURCE).
+      expect(process(<<-SOURCE)).
         <%= t do %>
           Hello, <%= name %>
         <% end %>
         SOURCE
-      should == <<-EXPECTED
+      to eq <<-EXPECTED
         <%= t :key, "Hello, %{name}", :name => (name), :i18nliner_inferred_key => (true) %>
         EXPECTED
     end
 
     it "should generate placeholders for inline expressions in wrappers" do
-      process(<<-SOURCE).
+      expect(process(<<-SOURCE)).
         <%= t do %>
           Go to <a href="/asdf" title="<%= name %>">your account</a>
         <% end %>
         SOURCE
-      should == <<-EXPECTED
+      to eq <<-EXPECTED
         <%= t :key, "Go to *your account*", :i18nliner_inferred_key => (true), :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{name}\\">\\\\1</a>"] %>
         EXPECTED
     end
@@ -159,34 +159,34 @@ describe I18nliner::PreProcessors::ErbPreProcessor do
     # spec for this in case the underlying implementation changes
     # dramatically
     it "should transform nested t block expressions in wrappers" do
-      process(<<-SOURCE).
+      expect(process(<<-SOURCE)).
         <%= t do %>
           Go to <a href="/asdf" title="<%= t do %>manage account stuffs, <%= name %><% end %>">your account</a>
         <% end %>
         SOURCE
-      should == <<-EXPECTED
+      to eq <<-EXPECTED
         <%= t :key, "Go to *your account*", :i18nliner_inferred_key => (true), :wrappers => ["<a href=\\"/asdf\\" title=\\"\#{t :key, \"manage account stuffs, %{name}\", :name => (name), :i18nliner_inferred_key => (true)}\\">\\\\1</a>"] %>
         EXPECTED
     end
 
     it "should generate placeholders for empty markup" do
-      process(<<-SOURCE).
+      expect(process(<<-SOURCE)).
         <%= t do %>
           Create <input name="count"> groups
         <% end %>
         SOURCE
-      should == <<-EXPECTED
+      to eq <<-EXPECTED
         <%= t :key, "Create %{input_name_count} groups", :input_name_count => ("<input name=\\"count\\">".html_safe), :i18nliner_inferred_key => (true) %>
         EXPECTED
     end
 
     it "should unescape entities" do
-      process(<<-SOURCE).
+      expect(process(<<-SOURCE)).
         <%= t do %>
           &copy; <%= year %> ACME Corp. All Rights Reserved. Our lawyers &gt; your lawyers
         <% end %>
         SOURCE
-      should == <<-EXPECTED
+      to eq <<-EXPECTED
         <%= t :key, "© %{year} ACME Corp. All Rights Reserved. Our lawyers > your lawyers", :year => (year), :i18nliner_inferred_key => (true) %>
         EXPECTED
     end

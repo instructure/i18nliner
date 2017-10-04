@@ -21,32 +21,32 @@ describe I18nliner::Extractors::RubyExtractor do
 
   describe "#each_translation" do
     it "should ignore non-t calls" do
-      extract("foo 'Foo'").should == {}
+      expect(extract("foo 'Foo'")).to eq({})
     end
 
     it "should ignore t! calls" do
-      extract("t! something").should == {}
+      expect(extract("t! something")).to eq({})
     end
 
     it "should not extract t calls with no default" do
-      extract("t :foo").should == {}
+      expect(extract("t :foo")).to eq({})
     end
 
     it "should extract valid t calls" do
-      extract("t 'Foo'").should ==
-        {"foo_f44ad75d" => "Foo"}
-      extract("t :bar, 'Baz'").should ==
-        {"bar" => "Baz"}
-      extract("t 'lol', 'wut'").should ==
-        {"lol" => "wut"}
-      extract("translate 'one', {:one => '1', :other => '2'}, :count => 1").should == 
-        {"one.one" => "1", "one.other" => "2"}
-      extract("t({:one => 'just one', :other => 'zomg lots'}, :count => 1)").should ==
-        {"zomg_lots_a54248c9.one" => "just one", "zomg_lots_a54248c9.other" => "zomg lots"}
-      extract("t 'foo2', <<-STR\nFoo\nSTR").should ==
-        {'foo2' => "Foo"}
-      extract("t 'foo', 'F' + 'o' + 'o'").should ==
-        {'foo' => "Foo"}
+      expect(extract("t 'Foo'")).to eq(
+        {"foo_f44ad75d" => "Foo"})
+      expect(extract("t :bar, 'Baz'")).to eq(
+        {"bar" => "Baz"})
+      expect(extract("t 'lol', 'wut'")).to eq(
+        {"lol" => "wut"})
+      expect(extract("translate 'one', {:one => '1', :other => '2'}, :count => 1")).to eq(
+        {"one.one" => "1", "one.other" => "2"})
+      expect(extract("t({:one => 'just one', :other => 'zomg lots'}, :count => 1)")).to eq(
+        {"zomg_lots_a54248c9.one" => "just one", "zomg_lots_a54248c9.other" => "zomg lots"})
+      expect(extract("t 'foo2', <<-STR\nFoo\nSTR")).to eq(
+        {'foo2' => "Foo"})
+      expect(extract("t 'foo', 'F' + 'o' + 'o'")).to eq(
+        {'foo' => "Foo"})
     end
 
     it "should bail on invalid t calls" do

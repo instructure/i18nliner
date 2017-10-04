@@ -22,8 +22,8 @@ describe I18nliner::Extensions::Controller do
 
   describe "#translate" do
     it "should inferpolate" do
-      i18n.stub(:foo).and_return("FOO")
-      I18nliner::CallHelpers.stub(:infer_key).and_return(:key)
+      allow(i18n).to receive(:foo).and_return("FOO")
+      allow(I18nliner::CallHelpers).to receive(:infer_key).and_return(:key)
 
       expect(I18n).to receive(:translate).with(:key, :default => "hello %{foo}", :foo => "FOO", :i18nliner_scope => i18n.i18nliner_scope)
       i18n.translate("hello %{foo}")

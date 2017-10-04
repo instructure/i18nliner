@@ -55,27 +55,27 @@ describe I18nliner::Extensions::Core do
     context "with wrappers" do
       it "should apply a single wrapper" do
         result = i18n.translate("Hello *bob*.", :wrapper => '<b>\1</b>')
-        result.should == "Hello <b>bob</b>."
+        expect(result).to eq "Hello <b>bob</b>."
       end
 
       it "should be html-safe" do
         result = i18n.translate("Hello *bob*.", :wrapper => '<b>\1</b>')
-        result.should be_html_safe
+        expect(result).to be_html_safe
       end
 
       it "should apply multiple wrappers" do
         result = i18n.translate("Hello *bob*. Click **here**", :wrappers => ['<b>\1</b>', '<a href="/">\1</a>'])
-        result.should == "Hello <b>bob</b>. Click <a href=\"/\">here</a>"
+        expect(result).to eq "Hello <b>bob</b>. Click <a href=\"/\">here</a>"
       end
 
       it "should apply multiple wrappers with arbitrary delimiters" do
         result = i18n.translate("Hello !!!bob!!!. Click ???here???", :wrappers => {'!!!' => '<b>\1</b>', '???' => '<a href="/">\1</a>'})
-        result.should == "Hello <b>bob</b>. Click <a href=\"/\">here</a>"
+        expect(result).to eq "Hello <b>bob</b>. Click <a href=\"/\">here</a>"
       end
 
       it "should html-escape the default when applying wrappers" do
-        i18n.translate("*bacon* > narwhals", :wrappers => ['<b>\1</b>']).
-          should == "<b>bacon</b> &gt; narwhals"
+        expect(i18n.translate("*bacon* > narwhals", :wrappers => ['<b>\1</b>'])).
+          to eq "<b>bacon</b> &gt; narwhals"
       end
     end
   end
@@ -90,28 +90,28 @@ describe I18nliner::Extensions::Core do
   describe ".interpolate_hash" do
     it "should not mark the result as html-safe if none of the components are html-safe" do
       result = i18n.interpolate_hash("hello %{name}", :name => "<script>")
-      result.should == "hello <script>"
-      result.should_not be_html_safe
+      expect(result).to eq "hello <script>"
+      expect(result).not_to be_html_safe
     end
 
     it "should html-escape values if the string is html-safe" do
       result = i18n.interpolate_hash("some markup: %{markup}".html_safe, :markup => "<html>")
-      result.should == "some markup: &lt;html&gt;"
-      result.should be_html_safe
+      expect(result).to eq "some markup: &lt;html&gt;"
+      expect(result).to be_html_safe
     end
 
     it "should html-escape the string and other values if any value is html-safe strings" do
       markup = "<input>"
       result = i18n.interpolate_hash("type %{input} & you get this: %{output}", :input => markup, :output => markup.html_safe)
-      result.should == "type &lt;input&gt; &amp; you get this: <input>"
-      result.should be_html_safe
+      expect(result).to eq "type &lt;input&gt; &amp; you get this: <input>"
+      expect(result).to be_html_safe
     end
 
     it "should not html-escape the string if the html-safe values are not strings" do
       markup = "<input>"
       result = i18n.interpolate_hash("my favorite number is %{number} & my favorite color is %{color}", :number => 1, :color => "red")
-      result.should == "my favorite number is 1 & my favorite color is red"
-      result.should_not be_html_safe
+      expect(result).to eq "my favorite number is 1 & my favorite color is red"
+      expect(result).not_to be_html_safe
     end
   end
 end

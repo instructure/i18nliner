@@ -13,37 +13,37 @@ describe I18nliner::Extensions::Inferpolation do
 
   it "should inferpolate valid instance methods and chains" do
     options = {:default => "hello %{bar.baz} %{bar2}"}
-    foo.inferpolate(options).should == {
+    expect(foo.inferpolate(options)).to eq({
       :default => "hello %{bar_baz} %{bar2}",
       :bar_baz => foo.bar.baz,
       :bar2 => foo.bar2
-    }
+    })
   end
 
   it "should inferpolate valid instance variables and chains" do
     options = {:default => "hello %{@bar.baz} %{@bar2}"}
-    foo.inferpolate(options).should == {
+    expect(foo.inferpolate(options)).to eq({
       :default => "hello %{bar_baz} %{bar2}",
       :bar_baz => foo.bar.baz,
       :bar2 => foo.bar2
-    }
+    })
   end
 
   it "should not inferpolate invalid instance methods and chains" do
     options = {:default => "hello %{lol} %{bar.baz.lol}"}
-    foo.inferpolate(options).should == options
+    expect(foo.inferpolate(options)).to eq options
   end
 
   it "should not inferpolate invalid instance variables and chains" do
     options = {:default => "hello %{@lol} %{@bar.baz.lol}"}
-    foo.inferpolate(options).should == options
+    expect(foo.inferpolate(options)).to eq options
   end
 
   it "should work with pluralization hashes" do
     options = {:default => {:one => "%{bar2} has 1 item", :other => "%{bar2} has %{count} items"}}
-    foo.inferpolate(options).should == {
+    expect(foo.inferpolate(options)).to eq({
       :default => {:one => "%{bar2} has 1 item", :other => "%{bar2} has %{count} items"},
       :bar2 => foo.bar2
-    }
+    })
   end
 end

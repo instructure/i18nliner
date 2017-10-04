@@ -18,7 +18,7 @@ describe I18nliner::Commands::Dump do
       translations = I18nliner::Extractors::TranslationHash.new('i18n' => "Iñtërnâtiônàlizætiøn")
       dumper = I18nliner::Commands::Dump.new({:silent => true, :translations => translations})
       dumper.run
-      File.read(dumper.yml_file).gsub(/\s+$/, '').should == <<-YML.strip_heredoc.strip
+      expect(File.read(dumper.yml_file).gsub(/\s+$/, '')).to eq <<-YML.strip_heredoc.strip
         ---
         #{I18n.default_locale}:
           i18n: Iñtërnâtiônàlizætiøn

@@ -35,7 +35,7 @@ describe I18nliner::Processors::ErbProcessor do
              >with nesting</a>!!!
         <% end %>
         SOURCE
-      @translations.values.sort.should == [
+      expect(@translations.values.sort).to eq [
         "Inline!",
         "Zomg a block *with nesting*!!!",
         "what is this?"

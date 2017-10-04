@@ -13,10 +13,10 @@ describe I18nliner::Commands::Check do
       allow(I18nliner).to receive(:manual_translations).and_return({})
       checker = I18nliner::Commands::Check.new({:silent => true})
       checker.check_files
-      checker.translations.values.should == ["welcome, %{name}", "Hello World", "*This* is a test, %{user}"]
-      checker.errors.size.should == 2
+      expect(checker.translations.values).to eq ["welcome, %{name}", "Hello World", "*This* is a test, %{user}"]
+      expect(checker.errors.size).to eq 2
       checker.errors.each do |error|
-        error.should =~ /\Ainvalid signature/
+        expect(error).to match /\Ainvalid signature/
       end
     end
   end

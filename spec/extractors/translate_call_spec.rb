@@ -48,17 +48,17 @@ describe I18nliner::Extractors::TranslateCall do
     # for legacy calls, e.g. t :key, :default => "foo"
     it "should allow the default to be specified in the options hash" do
       call = call(no_scope, :key, :default => "foo")
-      call.default.should == "foo"
+      expect(call.default).to eq "foo"
     end
 
     it "should not extract symbol defaults" do
       call = call(no_scope, :key, :default => :bar_key)
-      call.default.should be_nil
+      expect(call.default).to be_nil
     end
 
     it "should extract the first string default" do
       call = call(no_scope, :key, :default => [:foo_key, :bar_key, "baz"])
-      call.default.should == "baz"
+      expect(call.default).to eq "baz"
     end
 
     it "should ensure options is a hash, if provided" do
@@ -71,15 +71,15 @@ describe I18nliner::Extractors::TranslateCall do
   describe "key inference" do
     it "should generate literal keys" do
       I18nliner.inferred_key_format :literal do
-        call(no_scope, "zomg key").translations.should ==
-          [["zomg key", "zomg key"]]
+        expect(call(no_scope, "zomg key").translations).to eq(
+          [["zomg key", "zomg key"]])
       end
     end
 
     it "should generate underscored keys" do
       I18nliner.inferred_key_format :underscored do
-        call(no_scope, "zOmg key!!").translations.should ==
-          [["zomg_key", "zOmg key!!"]]
+        expect(call(no_scope, "zOmg key!!").translations).to eq(
+          [["zomg_key", "zOmg key!!"]])
       end
     end
 
@@ -97,33 +97,33 @@ describe I18nliner::Extractors::TranslateCall do
 
       I18nliner.inferred_key_format :underscored do
         I18n.default_locale = :en
-        call(no_scope, "Jürgen").translations[0][0].should == "jurgen"
+        expect(call(no_scope, "Jürgen").translations[0][0]).to eq "jurgen"
         I18n.default_locale = :de
-        call(no_scope, "Jürgen").translations[0][0].should == "juergen"
+        expect(call(no_scope, "Jürgen").translations[0][0]).to eq "juergen"
       end
       I18n.default_locale = orig_locale
     end
 
     it "should generate underscored + crc32 keys" do
       I18nliner.inferred_key_format :underscored_crc32 do
-        call(no_scope, "zOmg key!!").translations.should ==
-          [["zomg_key_90a85b0b", "zOmg key!!"]]
+        expect(call(no_scope, "zOmg key!!").translations).to eq(
+          [["zomg_key_90a85b0b", "zOmg key!!"]])
       end
     end
   end
 
   describe "normalization" do
     it "should make keys absolute if scoped" do
-      call(scope, '.key', "value").translations[0][0].should =~ /\Afoo\.key/
-      call(scope, ['.key1', '.key2'], "value").translations.map(&:first).should == ['foo.key1', 'foo.key2']
+      expect(call(scope, '.key', "value").translations[0][0]).to match /\Afoo\.key/
+      expect(call(scope, ['.key1', '.key2'], "value").translations.map(&:first)).to eq ['foo.key1', 'foo.key2']
     end
 
     it "should strip leading whitespace from defaults" do
-      call(no_scope, "\t white  space \n\t ").translations[0][1].should == "white  space \n\t "
+      expect(call(no_scope, "\t white  space \n\t ").translations[0][1]).to eq "white  space \n\t "
     end
 
     it "should strip all whitespace from defaults if the scope requests it" do
-      call(erb_scope, "\t white  space \n\t ").translations[0][1].should == "white space"
+      expect(call(erb_scope, "\t white  space \n\t ").translations[0][1]).to eq "white space"
     end
   end
 
@@ -131,32 +131,32 @@ describe I18nliner::Extractors::TranslateCall do
     describe "keys" do
       it "should be inferred from a word" do
         translations = call(no_scope, "person", {:count => Object.new}).translations
-        translations.map(&:first).sort.should == ["count_people_489946e7.one", "count_people_489946e7.other"]
+        expect(translations.map(&:first).sort).to eq ["count_people_489946e7.one", "count_people_489946e7.other"]
       end
 
       it "should be inferred from a hash" do
         translations = call(no_scope, {:one => "just you", :other => "lotsa peeps"}, {:count => Object.new}).translations
-        translations.map(&:first).sort.should == ["lotsa_peeps_41499c40.one", "lotsa_peeps_41499c40.other"]
+        expect(translations.map(&:first).sort).to eq ["lotsa_peeps_41499c40.one", "lotsa_peeps_41499c40.other"]
       end
     end
 
     describe "defaults" do
       it "should be inferred" do
         translations = call(no_scope, "person", {:count => Object.new}).translations
-        translations.map(&:last).sort.should == ["%{count} people", "1 person"]
+        expect(translations.map(&:last).sort).to eq ["%{count} people", "1 person"]
       end
 
       it "should not be inferred if given multiple words" do
         translations = call(no_scope, "happy person", {:count => Object.new}).translations
-        translations.map(&:last).should == ["happy person"]
+        expect(translations.map(&:last)).to eq ["happy person"]
       end
     end
 
     it "should accept valid hashes" do
-      call(no_scope, {:one => "asdf", :other => "qwerty"}, :count => 1).translations.sort.should ==
-        [["qwerty_98185351.one", "asdf"], ["qwerty_98185351.other", "qwerty"]]
-      call(no_scope, :some_stuff, {:one => "asdf", :other => "qwerty"}, :count => 1).translations.sort.should ==
-        [["some_stuff.one", "asdf"], ["some_stuff.other", "qwerty"]]
+      expect(call(no_scope, {:one => "asdf", :other => "qwerty"}, :count => 1).translations.sort).to eq(
+        [["qwerty_98185351.one", "asdf"], ["qwerty_98185351.other", "qwerty"]])
+      expect(call(no_scope, :some_stuff, {:one => "asdf", :other => "qwerty"}, :count => 1).translations.sort).to eq(
+        [["some_stuff.one", "asdf"], ["some_stuff.other", "qwerty"]])
     end
 
     it "should reject invalid keys" do

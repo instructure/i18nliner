@@ -11,7 +11,7 @@ describe I18nliner::Extractors::TranslationHash do
         hash["foo"] = "Foo"
         hash["foo"] = "Foo"
       }.to_not raise_error
-      hash.should == {"foo" => "Foo"}
+      expect(hash).to eq({"foo" => "Foo"})
     end
 
     it "should reject mismatched values" do
