@@ -1,7 +1,7 @@
 if defined?(::Rails)
-  require 'i18nliner/erubis'
+  require 'i18nliner/erubi'
 else
-  require 'erubis'
+  require 'erubi'
 end
 require 'i18nliner/processors/ruby_processor'
 require 'i18nliner/pre_processors/erb_pre_processor'
@@ -13,12 +13,12 @@ module I18nliner
 
       if defined?(::Rails) # block expressions and all that jazz
         def pre_process(source)
-          I18nliner::Erubis.new(source).src
+          I18nliner::Erubi.new(source).src
         end
       else
         def pre_process(source)
           source = PreProcessors::ErbPreProcessor.process(source)
-          Erubis::Eruby.new(source).src
+          Erubi::Engine.new(source).src
         end
       end
 

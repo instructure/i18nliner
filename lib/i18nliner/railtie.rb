@@ -10,8 +10,8 @@ module I18nliner
       end
 
       ActiveSupport.on_load :action_view do
-        require 'i18nliner/erubis'
-        ActionView::Template::Handlers::ERB.erb_implementation = I18nliner::Erubis
+        require 'i18nliner/erubi'
+        ActionView::Template::Handlers::ERB.erb_implementation = I18nliner::Erubi
         ActionView::Base.send :include, I18nliner::Extensions::View
       end
 
