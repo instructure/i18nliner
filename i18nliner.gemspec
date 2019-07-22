@@ -22,6 +22,6 @@ Gem::Specification.new do |s|
   s.add_dependency('erubi', '~> 1.7')
   s.add_dependency('ya2yaml', '0.31')
   s.add_dependency('nokogiri', '>= 1.5.0')
-  s.add_development_dependency('rspec', '~> 3.6.0')
-  s.add_development_dependency('rspec-mocks', '~> 3.6.0')
+  s.add_development_dependency('rspec', '~> 3.6')
+  s.add_development_dependency('rspec-mocks', '~> 3.6')
 end
