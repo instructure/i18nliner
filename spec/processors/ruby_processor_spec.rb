@@ -9,7 +9,7 @@ describe I18nliner::Processors::RubyProcessor do
   end
 
   describe "#scope_for" do
-    if defined?(::Rails) && ::Rails.version > '4'
+    if defined?(::Rails)
       context "with a controller" do
         subject { @processor.scope_for("app/controllers/foos/bars_controller.rb") }
 
