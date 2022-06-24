@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
 
   s.files = %w(LICENSE.txt Rakefile README.md) + Dir['{lib,spec}/**/*.{rb,rake}']
   s.add_dependency('activesupport', '>= 6.0')
+  s.add_dependency('i18n', '>= 1.8.6')
   s.add_dependency('ruby_parser', '~> 3.10')
   s.add_dependency('sexp_processor', '~> 4.10')
   s.add_dependency('ruby2ruby', '~> 2.4')

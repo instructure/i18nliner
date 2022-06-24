@@ -6,9 +6,9 @@ describe I18nliner::Extensions::View do
   let(:i18n) do
     Module.new do
       extend(Module.new do
-        def translate(key, options)
+        def translate(key, **options)
           options.delete(:i18nliner_inferred_key)
-          I18n.translate(key, options)
+          I18n.translate(key, **options)
         end
       end)
       extend I18nliner::Extensions::View
