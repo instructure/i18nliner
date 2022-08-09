@@ -77,6 +77,11 @@ describe I18nliner::Extensions::Core do
         expect(i18n.translate("*bacon* > narwhals", :wrappers => ['<b>\1</b>'])).
           to eq "<b>bacon</b> &gt; narwhals"
       end
+
+      it "should allow escaping asterisks and backslashes" do
+        result = i18n.translate("Hello \\\\*b\\*b*.", :wrapper => '<b>\1</b>')
+        expect(result).to eq 'Hello \<b>b*b</b>.'
+      end
     end
   end
 

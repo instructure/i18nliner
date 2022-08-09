@@ -62,10 +62,15 @@ module I18nliner
           wrappers = Array(wrappers)
           wrappers = Hash[wrappers.each_with_index.map{ |w, i| ['*' * (1 + i), w]}]
         end
+        # If you are actually using nonprintable characters in your source string, you should feel ashamed
+        string.gsub!("\\\\", 26.chr)
+        string.gsub!("\\*", 27.chr)
         wrappers.sort_by{ |k, v| -k.length }.each do |k, v|
           pattern = pattern_for(k)
           string.gsub!(pattern, v)
         end
+        string.gsub!(27.chr, '*')
+        string.gsub!(26.chr, "\\")
         string.html_safe
       end
 
