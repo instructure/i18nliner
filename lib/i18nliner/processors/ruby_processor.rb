@@ -23,7 +23,7 @@ module I18nliner
         File.read(file)
       end
 
-      if defined?(::Rails) && ::Rails.version > '4'
+      if defined?(::Rails)
         CONTROLLER_PATH = %r{\A(.*/)?app/controllers/(.*)_controller\.rb\z}
         def scope_for(path)
           scope = path.dup
