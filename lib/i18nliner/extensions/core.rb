@@ -53,6 +53,10 @@ module I18nliner
      private
 
       def apply_wrappers(string, wrappers)
+        # In rails 6.1+ views, sometimes an Object is used for the default, and that object needs to remain
+        # an object or it won't be recognized if it comes back as a string
+        return string if string.instance_of?(Object)
+
         string = string.html_safe? ? string.dup : ERB::Util.h(string)
         unless wrappers.is_a?(Hash)
           wrappers = Array(wrappers)
