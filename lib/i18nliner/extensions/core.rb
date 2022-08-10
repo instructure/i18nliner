@@ -22,8 +22,10 @@ module I18nliner
         # Exit now unless we have a string or a thing that delegates to a string
         return result unless result.respond_to?(:gsub)
 
+        was_html_safe = result.html_safe?
         # If you are actually using nonprintable characters in your source string, you should feel ashamed
         result = result.gsub("\\\\", "\uE124").gsub("\\*", "\uE123")
+        result = result.html_safe if was_html_safe
         if wrappers
           result = apply_wrappers(result, wrappers)
         end
