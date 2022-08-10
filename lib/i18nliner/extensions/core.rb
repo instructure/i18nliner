@@ -24,12 +24,12 @@ module I18nliner
         return result if result.nil? || result.instance_of?(Object)
 
         # If you are actually using nonprintable characters in your source string, you should feel ashamed
-        result = result.gsub("\\\\", 26.chr).gsub("\\*", 27.chr)
+        result = result.gsub("\\\\", "\uE124").gsub("\\*", "\uE123")
         if wrappers
           result = apply_wrappers(result, wrappers)
         end
         was_html_safe = result.html_safe?
-        result = result.gsub(27.chr, '*').gsub(26.chr, "\\")
+        result = result.gsub("\uE123", '*').gsub("\uE124", "\\")
         result = result.html_safe if was_html_safe
 
         result
