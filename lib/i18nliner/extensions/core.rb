@@ -19,9 +19,8 @@ module I18nliner
         wrappers = options.delete(:wrappers) || options.delete(:wrapper)
         result = super(key, options)
 
-        # In rails 6.1+ views, sometimes an Object is used for the default, and that object needs to remain
-        # an object or it won't be recognized if it comes back as a string
-        return result if result.nil? || result.instance_of?(Object)
+        # Exit now unless we have a string or a thing that delegates to a string
+        return result unless result.respond_to?(:gsub)
 
         # If you are actually using nonprintable characters in your source string, you should feel ashamed
         result = result.gsub("\\\\", "\uE124").gsub("\\*", "\uE123")
