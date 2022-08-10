@@ -18,9 +18,19 @@ module I18nliner
 
         wrappers = options.delete(:wrappers) || options.delete(:wrapper)
         result = super(key, options)
+
+        # In rails 6.1+ views, sometimes an Object is used for the default, and that object needs to remain
+        # an object or it won't be recognized if it comes back as a string
+        return result if result.nil? || result.instance_of?(Object)
+
+        # If you are actually using nonprintable characters in your source string, you should feel ashamed
+        result = result.gsub("\\\\", 26.chr).gsub("\\*", 27.chr)
         if wrappers
           result = apply_wrappers(result, wrappers)
         end
+        was_html_safe = result.html_safe?
+        result = result.gsub(27.chr, '*').gsub(26.chr, "\\")
+        result = result.html_safe if was_html_safe
 
         result
       rescue ArgumentError
@@ -53,10 +63,6 @@ module I18nliner
      private
 
       def apply_wrappers(string, wrappers)
-        # In rails 6.1+ views, sometimes an Object is used for the default, and that object needs to remain
-        # an object or it won't be recognized if it comes back as a string
-        return string if string.instance_of?(Object)
-
         string = string.html_safe? ? string.dup : ERB::Util.h(string)
         unless wrappers.is_a?(Hash)
           wrappers = Array(wrappers)
