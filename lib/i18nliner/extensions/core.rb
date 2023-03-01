@@ -17,7 +17,7 @@ module I18nliner
         end
 
         wrappers = options.delete(:wrappers) || options.delete(:wrapper)
-        result = super(key, options)
+        result = super(key, **options)
 
         # Exit now unless we have a string or a thing that delegates to a string
         return result unless result.respond_to?(:gsub)

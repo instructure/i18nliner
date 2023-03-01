@@ -5,11 +5,15 @@ describe I18nliner::Extensions::Core do
   let(:i18n) do
     Module.new do
       extend(Module.new do
-        def translate(*args)
-          simple_translate(args[0], args[1])
+        def translate(key, **options)
+          if RUBY_VERSION >= '3.0'
+            simple_translate(key, **options)
+          else
+            simple_translate(key, options)
+          end
         end
 
-        def simple_translate(key, options)
+        def simple_translate(key, **options)
           string = options.delete(:default)
           interpolate_hash(string, options)
         end
@@ -48,7 +52,11 @@ describe I18nliner::Extensions::Core do
     end
 
     it "should stringify array keys, but not the array itself" do
-      expect(i18n).to receive(:simple_translate).with(["bar", "baz"], {})
+      if RUBY_VERSION >= '3.0'
+        expect(i18n).to receive(:simple_translate).with(["bar", "baz"])
+      else
+        expect(i18n).to receive(:simple_translate).with(["bar", "baz"], {})
+      end
       i18n.translate([:bar, :baz])
     end
 

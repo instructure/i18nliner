@@ -13,7 +13,7 @@ module I18nliner
         key, options = CallHelpers.infer_arguments(args)
         options = inferpolate(options) if I18nliner.infer_interpolation_values
         options[:i18nliner_scope] = i18nliner_scope
-        I18n.translate(key, options)
+        I18n.translate(key, **options)
       end
       alias :t :translate
       alias :t! :translate

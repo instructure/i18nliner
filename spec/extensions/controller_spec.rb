@@ -8,7 +8,7 @@ describe I18nliner::Extensions::Controller do
       extend(Module.new do
         def translate(key, options)
           options.delete(:i18nliner_inferred_key)
-          I18n.translate(key, options)
+          I18n.translate(key, **options)
         end
 
         def controller_name
