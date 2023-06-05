@@ -84,6 +84,9 @@ module I18nliner
       end
 
       def evaluate_expression(exp)
+        # value omissions in hashes will be nil and can just be considered UnsupportedExpression
+        # since they are equivalent to a method call
+        return UnsupportedExpression if exp.nil?
         return raw(exp) if exp.sexp_type == :lit
         return string_from(exp) if stringish?(exp)
         return hash_from(exp) if exp.sexp_type == :hash

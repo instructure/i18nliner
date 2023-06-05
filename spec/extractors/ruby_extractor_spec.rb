@@ -49,6 +49,10 @@ describe I18nliner::Extractors::RubyExtractor do
         {'foo' => "Foo"})
     end
 
+    it "should handle omitted values in hashes" do
+      expect { extract("t('foo %{count}', count:)") }.not_to raise_error
+    end
+
     it "should bail on invalid t calls" do
       assert_error "t foo", I18nliner::InvalidSignatureError
       assert_error "t :foo, foo", I18nliner::InvalidSignatureError
