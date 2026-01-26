@@ -23,8 +23,8 @@ Gem::Specification.new do |s|
   s.add_dependency "globby", ">= 0.1.1"
   s.add_dependency "i18n", ">= 1.8.6"
   s.add_dependency "nokogiri", ">= 1.5.0"
+  s.add_dependency "prism", "~> 1.8"
   s.add_dependency "ruby2ruby", "~> 2.4"
-  s.add_dependency "ruby_parser", "~> 3.10"
   s.add_dependency "sexp_processor", "~> 4.10"
   s.add_dependency "ya2yaml", "0.31"
 end

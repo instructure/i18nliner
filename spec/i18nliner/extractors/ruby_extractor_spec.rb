@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require "ruby_parser"
+require "prism"
 require "i18nliner/errors"
 require "i18nliner/scope"
 require "i18nliner/extractors/ruby_extractor"
 
 describe I18nliner::Extractors::RubyExtractor do
   def extract(source, scope = I18nliner::Scope.new(nil))
-    sexps = RubyParser.new.parse(source)
+    sexps = Prism::Translation::RubyParser.new.parse(source)
     extractor = I18nliner::Extractors::RubyExtractor.new(sexps, scope)
     translations = []
     extractor.each_translation { |translation| translations << translation }

@@ -13,7 +13,7 @@ module I18nliner
       def check_contents(source, scope = Scope.new)
         return unless source&.match?(Extractors::RubyExtractor.pattern)
 
-        sexps = RubyParser.new.parse(pre_process(source))
+        sexps = Prism::Translation::RubyParser.new.parse(pre_process(source))
         extractor = Extractors::RubyExtractor.new(sexps, scope)
         extractor.each_translation do |key, value|
           @translation_count += 1

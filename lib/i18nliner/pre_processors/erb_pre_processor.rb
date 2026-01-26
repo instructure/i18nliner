@@ -39,8 +39,8 @@ module I18nliner
 
         def self.parser
           @parser ||= begin
-            require "ruby_parser"
-            RubyParser.new
+            require "prism"
+            Prism::Translation::RubyParser.new
           end
         end
 
