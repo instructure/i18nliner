@@ -1,7 +1,9 @@
-require 'active_support/core_ext/string/inflections'
-require 'i18nliner/base'
-require 'i18nliner/call_helpers'
-require 'i18nliner/errors'
+# frozen_string_literal: true
+
+require "active_support/core_ext/string/inflections"
+require "i18nliner/base"
+require "i18nliner/call_helpers"
+require "i18nliner/errors"
 
 module I18nliner
   module Extractors
@@ -30,48 +32,48 @@ module I18nliner
 
       def normalize
         @key = normalize_key(@key, @scope, @options[:i18nliner_inferred_key], @options[:scope])
-        @default = normalize_default(@default, @options || {}, {:remove_whitespace => @scope.remove_whitespace?})
+        @default = normalize_default(@default, @options || {}, { remove_whitespace: @scope.remove_whitespace? })
       end
 
       def translations
         return [] unless default
+
         keys = Array(key)
         keys.inject([]) do |result, key|
           if default.is_a?(String)
             result << [key, default]
           else
-            result.concat default.map { |dk, dv| ["#{key}.#{dk}", dv] }
+            result.concat(default.map { |dk, dv| ["#{key}.#{dk}", dv] })
           end
         end
       end
 
-      def validate_key
-      end
+      def validate_key; end
 
       def validate_default
         return unless @default.is_a?(Hash)
-        if (keys = @default.keys - ALLOWED_PLURALIZATION_KEYS).size > 0
+        if (keys = @default.keys - ALLOWED_PLURALIZATION_KEYS).size.positive?
           raise InvalidPluralizationKeyError.new(@line, keys)
         elsif REQUIRED_PLURALIZATION_KEYS & (keys = @default.keys) != REQUIRED_PLURALIZATION_KEYS
           raise MissingPluralizationKeyError.new(@line, keys)
         else
-          @default.values.each do |value|
+          @default.each_value do |value|
             raise InvalidPluralizationDefaultError.new(@line, value) unless value.is_a?(String)
           end
         end
 
-        unless I18nliner.infer_interpolation_values
-          if @default.is_a?(String)
-            validate_interpolation_values(@key, @default)
-          else
-            @default.each_pair do |sub_key, default|
-              validate_interpolation_values("#{@key}.#{sub_key}", default)
-            end
+        return if I18nliner.infer_interpolation_values
+
+        if @default.is_a?(String)
+          validate_interpolation_values(@default)
+        else
+          @default.each_value do |default|
+            validate_interpolation_values(default)
           end
         end
       end
 
-     private
+      private
 
       # Possible translate signatures:
       #
@@ -85,26 +87,29 @@ module I18nliner
         @default = @options.delete(:default)
         @default = nil if @default.is_a?(Symbol)
         @default = @default.detect { |d| d.is_a?(String) } if @default.is_a?(Array)
-        raise InvalidSignatureError.new(@line, args) unless @default.nil? || @default.is_a?(String) || @default.is_a?(Hash)
+        unless @default.nil? || @default.is_a?(String) || @default.is_a?(Hash)
+          raise InvalidSignatureError.new(@line,
+                                          args)
+        end
       rescue ArgumentError
         raise InvalidSignatureError.new(@line, args)
       end
 
-      def validate_interpolation_values(key, default)
-        default.scan(/%\{([^\}]+)\}/) do |match|
+      def validate_interpolation_values(default)
+        default.scan(/%\{([^}]+)\}/) do |match|
           placeholder = match[0].to_sym
           next if @options.include?(placeholder)
+
           raise MissingInterpolationValueError.new(@line, placeholder)
         end
       end
 
       def validate_options
-        if @default.is_a?(Hash)
-          raise MissingCountValueError.new(@line) unless @options && @options.key?(:count)
-        end
+        raise MissingCountValueError, @line if @default.is_a?(Hash) && !@options&.key?(:count)
         return if @options.nil?
-        @options.keys.each do |key|
-          raise InvalidOptionKeyError.new(@line) unless key.is_a?(String) || key.is_a?(Symbol)
+
+        @options.each_key do |key|
+          raise InvalidOptionKeyError, @line unless key.is_a?(String) || key.is_a?(Symbol)
         end
       end
     end

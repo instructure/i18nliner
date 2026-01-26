@@ -1,15 +1,17 @@
-require 'sexp_processor'
-require 'i18nliner/errors'
-require 'i18nliner/extractors/translate_call'
-require 'i18nliner/extractors/sexp_helper'
+# frozen_string_literal: true
+
+require "sexp_processor"
+require "i18nliner/errors"
+require "i18nliner/extractors/translate_call"
+require "i18nliner/extractors/sexp_helper"
 
 module I18nliner
   module Extractors
     class RubyExtractor < ::SexpProcessor
       include SexpHelper
 
-      TRANSLATE_CALLS = [:t, :translate]
-      attr_reader :current_line
+      TRANSLATE_CALLS = %i[t translate].freeze
+      attr_reader :current_line, :current_defn
 
       def self.pattern
         /(^|\W)(t|translate)(\W|$)/
@@ -26,13 +28,12 @@ module I18nliner
         process(@sexps)
       end
 
-      attr_reader :current_defn
       def process_defn(exp)
         exp.shift
         @current_defn = exp.shift
         process exp.shift until exp.empty?
         @current_defn = nil
-        s()
+        s
       end
 
       def process_call(exp)
@@ -40,7 +41,7 @@ module I18nliner
         receiver_exp = exp.shift
         receiver = nil
         if receiver_exp
-          receiver = receiver_exp[0] == :const ? receiver_exp.last : UnsupportedExpression
+          receiver = (receiver_exp[0] == :const) ? receiver_exp.last : UnsupportedExpression
           process(receiver_exp)
         end
         method = exp.shift
@@ -48,7 +49,7 @@ module I18nliner
         if extractable_call?(receiver, method)
           @current_line = exp.line
 
-          # convert s-exps into literals where possible 
+          # convert s-exps into literals where possible
           args = process_arguments(exp)
 
           process_translate_call(receiver, method, args)
@@ -61,7 +62,7 @@ module I18nliner
         s
       end
 
-     protected
+      protected
 
       def extractable_call?(receiver, method)
         TRANSLATE_CALLS.include?(method) && (receiver.nil? || receiver == :I18n)
@@ -69,15 +70,15 @@ module I18nliner
 
       def process_translate_call(receiver, method, args)
         scope = receiver ? Scope.root : @scope
-        call = TranslateCall.new(scope, @current_line, method, args, :explicit_receiver => !receiver.nil?)
-        call.translations.each &@block
+        call = TranslateCall.new(scope, @current_line, method, args, explicit_receiver: !receiver.nil?)
+        call.translations.each(&@block)
       end
 
-     private
+      private
 
       def process_arguments(args)
         values = []
-        while arg = args.shift
+        while (arg = args.shift)
           values << evaluate_expression(arg)
         end
         values
@@ -90,13 +91,14 @@ module I18nliner
         return raw(exp) if exp.sexp_type == :lit
         return string_from(exp) if stringish?(exp)
         return hash_from(exp) if exp.sexp_type == :hash
+
         process(exp)
         UnsupportedExpression
       end
 
       def hash_from(exp)
         exp.shift
-        values = exp.map{ |e| evaluate_expression(e) }
+        values = exp.map { |e| evaluate_expression(e) }
         Hash[*values]
       end
     end

@@ -1,6 +1,8 @@
-require 'i18nliner/base'
-require 'i18nliner/call_helpers'
-require 'i18nliner/extensions/inferpolation'
+# frozen_string_literal: true
+
+require "i18nliner/base"
+require "i18nliner/call_helpers"
+require "i18nliner/extensions/inferpolation"
 
 module I18nliner
   module Extensions
@@ -15,14 +17,14 @@ module I18nliner
         options[:i18nliner_scope] = i18nliner_scope
         I18n.translate(key, **options)
       end
-      alias :t :translate
-      alias :t! :translate
-      alias :translate! :translate
+      alias_method :t, :translate
+      alias_method :t!, :translate
+      alias_method :translate!, :translate
 
-      def localize(*args)
-        I18n.localize(*args)
+      def localize(*)
+        I18n.localize(*)
       end
-      alias :l :localize
+      alias_method :l, :localize
 
       def self.included(klass)
         klass.extend(self)
@@ -30,4 +32,3 @@ module I18nliner
     end
   end
 end
-

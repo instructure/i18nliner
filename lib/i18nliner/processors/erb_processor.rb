@@ -1,15 +1,17 @@
-if defined?(::Rails)
-  require 'i18nliner/erubi'
+# frozen_string_literal: true
+
+if defined?(Rails)
+  require "i18nliner/erubi"
 else
-  require 'erubi'
+  require "erubi"
 end
-require 'i18nliner/processors/ruby_processor'
-require 'i18nliner/pre_processors/erb_pre_processor'
+require "i18nliner/processors/ruby_processor"
+require "i18nliner/pre_processors/erb_pre_processor"
 
 module I18nliner
   module Processors
     class ErbProcessor < RubyProcessor
-      default_pattern '*.erb'
+      default_pattern "*.erb"
 
       if defined?(::Rails) # block expressions and all that jazz
         def pre_process(source)
@@ -26,8 +28,8 @@ module I18nliner
       def scope_for(path)
         scope = path.dup
         if scope.sub!(VIEW_PATH, '\2')
-          scope = scope.gsub(/\/_?/, '.')
-          Scope.new(scope, :allow_relative => true, :remove_whitespace => true, :context => self)
+          scope = scope.gsub(%r{/_?}, ".")
+          Scope.new(scope, allow_relative: true, remove_whitespace: true, context: self)
         else
           Scope.root
         end

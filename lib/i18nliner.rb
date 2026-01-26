@@ -1,8 +1,10 @@
-require 'i18n'
-require 'i18nliner/base'
+# frozen_string_literal: true
 
-require 'i18nliner/extensions/core'
-I18n.send :extend, I18nliner::Extensions::Core
-require 'i18nliner/reserved_keys'
+require "i18n"
+require "i18nliner/base"
 
-require 'i18nliner/railtie' if defined?(Rails)
+require "i18nliner/extensions/core"
+I18n.extend I18nliner::Extensions::Core
+require "i18nliner/reserved_keys"
+
+require "i18nliner/railtie" if defined?(Rails)

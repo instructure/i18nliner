@@ -1,6 +1,8 @@
-require 'i18nliner/base'
-require 'i18nliner/call_helpers'
-require 'i18nliner/extensions/inferpolation'
+# frozen_string_literal: true
+
+require "i18nliner/base"
+require "i18nliner/call_helpers"
+require "i18nliner/extensions/inferpolation"
 
 module I18nliner
   module Extensions
@@ -13,17 +15,19 @@ module I18nliner
         # if a block gets through to here, it either means:
         # 1. the user did something weird (e.g. <%= t{ "haha" } %>)
         # 2. the erb pre processor missed it somehow (bug)
-        raise InvalidBlockUsageError.new("block translate calls need to be output (i.e. `<%=`) and the block body must be of the form `%>your string<%`") if block_given?
+        if block_given?
+          raise InvalidBlockUsageError, "block translate calls need to be output (i.e. `<%=`) " \
+                                        "and the block body must be of the form `%>your string<%`"
+        end
+
         key, options = CallHelpers.infer_arguments(args)
         options = inferpolate(options) if I18nliner.infer_interpolation_values
         options[:i18nliner_scope] = i18nliner_scope
         super(key, **options)
-      rescue ArgumentError
-        raise
       end
-      alias :t :translate
-      alias :t! :translate
-      alias :translate! :translate
+      alias_method :t, :translate
+      alias_method :t!, :translate
+      alias_method :translate!, :translate
     end
   end
 end

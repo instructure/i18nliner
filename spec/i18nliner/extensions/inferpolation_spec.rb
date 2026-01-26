@@ -1,0 +1,51 @@
+# frozen_string_literal: true
+
+require "i18nliner/extensions/inferpolation"
+
+describe I18nliner::Extensions::Inferpolation do
+  let(:foo) do
+    bar = double(baz: "lol")
+    foo = double(bar:, bar2: "foo")
+    foo.instance_variable_set(:@bar, foo.bar)
+    foo.instance_variable_set(:@bar2, "foo")
+    foo.extend I18nliner::Extensions::Inferpolation
+    foo
+  end
+
+  it "should inferpolate valid instance methods and chains" do
+    options = { default: "hello %{bar.baz} %{bar2}" }
+    expect(foo.inferpolate(options)).to eq({
+                                             default: "hello %{bar_baz} %{bar2}",
+                                             bar_baz: foo.bar.baz,
+                                             bar2: foo.bar2
+                                           })
+  end
+
+  it "should inferpolate valid instance variables and chains" do
+    options = { default: "hello %{@bar.baz} %{@bar2}" }
+    expect(foo.inferpolate(options)).to eq({
+                                             default: "hello %{bar_baz} %{bar2}",
+                                             bar_baz: foo.bar.baz,
+                                             bar2: foo.bar2
+                                           })
+  end
+
+  it "should not inferpolate invalid instance methods and chains" do
+    options = { default: "hello %{lol} %{bar.baz.lol}" }
+    expect(foo.inferpolate(options)).to eq options
+  end
+
+  it "should not inferpolate invalid instance variables and chains" do
+    options = { default: "hello %{@lol} %{@bar.baz.lol}" }
+    expect(foo.inferpolate(options)).to eq options
+  end
+
+  it "should work with pluralization hashes" do
+    options = { default: { one: "%{bar2} has 1 item", other: "%{bar2} has %{count} items" } }
+    expect(foo.inferpolate(options)).to eq({
+                                             default: { one: "%{bar2} has 1 item",
+                                                        other: "%{bar2} has %{count} items" },
+                                             bar2: foo.bar2
+                                           })
+  end
+end
