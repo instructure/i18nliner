@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = "i18nliner"
-  s.version = "0.2.5"
+  s.version = "0.3.0"
   s.summary = "I18n made simple"
   s.description = <<~TEXT
     No .yml files. Inline defaults. Optional keys. Inferred interpolation values.
