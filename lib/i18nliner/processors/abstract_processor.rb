@@ -1,6 +1,8 @@
-require 'globby'
-require 'i18nliner/base'
-require 'i18nliner/processors'
+# frozen_string_literal: true
+
+require "globby"
+require "i18nliner/base"
+require "i18nliner/processors"
 
 module I18nliner
   module Processors
@@ -31,7 +33,9 @@ module I18nliner
       def check_files
         Dir.chdir(I18nliner.base_path) do
           files.each do |file|
-            @checker.call file, &method(:check_file)
+            @checker.call(file) do |file|
+              check_file(file)
+            end
           end
         end
       end
@@ -42,6 +46,7 @@ module I18nliner
       end
 
       def self.inherited(klass)
+        super
         Processors.register klass
       end
 

@@ -1,15 +1,18 @@
-require 'i18nliner/processors/abstract_processor'
-require 'i18nliner/extractors/ruby_extractor'
-require 'i18nliner/scope'
-require 'i18nliner/controller_scope'
+# frozen_string_literal: true
+
+require "i18nliner/processors/abstract_processor"
+require "i18nliner/extractors/ruby_extractor"
+require "i18nliner/scope"
+require "i18nliner/controller_scope"
 
 module I18nliner
   module Processors
     class RubyProcessor < AbstractProcessor
-      default_pattern '*.rb'
+      default_pattern "*.rb"
 
       def check_contents(source, scope = Scope.new)
-        return if source !~ Extractors::RubyExtractor.pattern
+        return unless source&.match?(Extractors::RubyExtractor.pattern)
+
         sexps = RubyParser.new.parse(pre_process(source))
         extractor = Extractors::RubyExtractor.new(sexps, scope)
         extractor.each_translation do |key, value|
@@ -28,14 +31,14 @@ module I18nliner
         def scope_for(path)
           scope = path.dup
           if scope.sub!(CONTROLLER_PATH, '\2')
-            scope = scope.gsub(/\/_?/, '.')
-            ControllerScope.new(scope, :allow_relative => true, :context => self)
+            scope = scope.gsub(%r{/_?}, ".")
+            ControllerScope.new(scope, allow_relative: true, context: self)
           else
             Scope.root
           end
         end
       else
-        def scope_for(path)
+        def scope_for(_path)
           Scope.root
         end
       end

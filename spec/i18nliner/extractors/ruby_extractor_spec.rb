@@ -1,7 +1,9 @@
-require 'ruby_parser'
-require 'i18nliner/errors'
-require 'i18nliner/scope'
-require 'i18nliner/extractors/ruby_extractor'
+# frozen_string_literal: true
+
+require "ruby_parser"
+require "i18nliner/errors"
+require "i18nliner/scope"
+require "i18nliner/extractors/ruby_extractor"
 
 describe I18nliner::Extractors::RubyExtractor do
   def extract(source, scope = I18nliner::Scope.new(nil))
@@ -9,14 +11,14 @@ describe I18nliner::Extractors::RubyExtractor do
     extractor = I18nliner::Extractors::RubyExtractor.new(sexps, scope)
     translations = []
     extractor.each_translation { |translation| translations << translation }
-    Hash[translations]
+    translations.to_h
   end
 
   def assert_error(*args)
     error = args.pop
-    expect {
+    expect do
       extract(*args)
-    }.to raise_error(error)
+    end.to raise_error(error)
   end
 
   describe "#each_translation" do
@@ -34,19 +36,26 @@ describe I18nliner::Extractors::RubyExtractor do
 
     it "should extract valid t calls" do
       expect(extract("t 'Foo'")).to eq(
-        {"foo_f44ad75d" => "Foo"})
+        { "foo_f44ad75d" => "Foo" }
+      )
       expect(extract("t :bar, 'Baz'")).to eq(
-        {"bar" => "Baz"})
+        { "bar" => "Baz" }
+      )
       expect(extract("t 'lol', 'wut'")).to eq(
-        {"lol" => "wut"})
+        { "lol" => "wut" }
+      )
       expect(extract("translate 'one', {:one => '1', :other => '2'}, :count => 1")).to eq(
-        {"one.one" => "1", "one.other" => "2"})
+        { "one.one" => "1", "one.other" => "2" }
+      )
       expect(extract("t({:one => 'just one', :other => 'zomg lots'}, :count => 1)")).to eq(
-        {"zomg_lots_a54248c9.one" => "just one", "zomg_lots_a54248c9.other" => "zomg lots"})
+        { "zomg_lots_a54248c9.one" => "just one", "zomg_lots_a54248c9.other" => "zomg lots" }
+      )
       expect(extract("t 'foo2', <<-STR\nFoo\nSTR")).to eq(
-        {'foo2' => "Foo"})
+        { "foo2" => "Foo" }
+      )
       expect(extract("t 'foo', 'F' + 'o' + 'o'")).to eq(
-        {'foo' => "Foo"})
+        { "foo" => "Foo" }
+      )
     end
 
     it "should handle omitted values in hashes" do

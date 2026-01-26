@@ -1,17 +1,18 @@
+# frozen_string_literal: true
+
 module I18nliner
   class ExtractionError < StandardError
     def initialize(line, detail = nil)
+      super()
       @line = line
       @detail = detail
     end
 
     def to_s
       error = self.class.name.underscore.humanize
-      error.gsub!(/\AI18nliner\/| error\z/, '')
+      error.gsub!(%r{\AI18nliner/| error\z}, "")
       error = "#{error} on line #{@line}"
-      @detail ?
-        error + " (got #{@detail.inspect})" :
-        error
+      @detail ? error + " (got #{@detail.inspect})" : error
     end
   end
 

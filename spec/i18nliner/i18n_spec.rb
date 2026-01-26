@@ -1,4 +1,6 @@
-require 'i18nliner/reserved_keys'
+# frozen_string_literal: true
+
+require "i18nliner/reserved_keys"
 
 describe I18n do
   it "adds new reserved keys" do

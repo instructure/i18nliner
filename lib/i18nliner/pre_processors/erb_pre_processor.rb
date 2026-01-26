@@ -1,18 +1,19 @@
-require 'i18nliner/errors'
-require 'i18nliner/call_helpers'
-require 'i18nliner/extractors/sexp_helper'
-require 'nokogiri'
+# frozen_string_literal: true
+
+require "i18nliner/errors"
+require "i18nliner/call_helpers"
+require "i18nliner/extractors/sexp_helper"
+require "nokogiri"
 
 module I18nliner
   module PreProcessors
     class ErbPreProcessor
-
       class Context
         attr_reader :buffer, :parent
 
         def initialize(parent = nil)
           @parent = parent
-          @buffer = ''
+          @buffer = +""
         end
 
         def <<(string)
@@ -33,20 +34,26 @@ module I18nliner
         include Extractors::SexpHelper
 
         DEFINITIONS = [
-          {:method => :link_to, :pattern => /link_to/, :arg => 0}
-        ]
+          { method: :link_to, pattern: /link_to/, arg: 0 }
+        ].freeze
 
         def self.parser
-          @parser ||= (require 'ruby_parser'; RubyParser.new)
+          @parser ||= begin
+            require "ruby_parser"
+            RubyParser.new
+          end
         end
 
         def self.ruby2ruby
-          @ruby2ruby ||= (require 'ruby2ruby'; Ruby2Ruby.new)
+          @ruby2ruby ||= begin
+            require "ruby2ruby"
+            Ruby2Ruby.new
+          end
         end
 
         def self.match_for(string)
           DEFINITIONS.each do |info|
-            return Helper.new(info, string) if string =~ info[:pattern]
+            return Helper.new(info, string) if string&.match?(info[:pattern])
           end
           nil
         end
@@ -62,7 +69,8 @@ module I18nliner
 
         SEXP_ARG_OFFSET = 3
         def wrappable?
-          return @wrappable if !@wrappable.nil?
+          return @wrappable unless @wrappable.nil?
+
           begin
             sexps = self.class.parser.parse(@source)
             @wrappable = sexps.sexp_type == :call &&
@@ -97,17 +105,17 @@ module I18nliner
         def <<(string)
           case string
           when ERB_BLOCK_EXPRESSION
-            if string =~ ERB_T_BLOCK_EXPRESSION
-              TBlock.new(self, $&)
-            else
-              raise TBlockNestingError.new("can't nest block expressions inside a t block")
+            unless string =~ ERB_T_BLOCK_EXPRESSION
+              raise TBlockNestingError, "can't nest block expressions inside a t block"
             end
+
+            TBlock.new(self, $&)
+
           when ERB_STATEMENT
-            if string =~ ERB_END_STATEMENT
-              @parent << result
-            else
-              raise TBlockNestingError.new("can't nest statements inside a t block")
-            end
+            raise TBlockNestingError, "can't nest statements inside a t block" unless ERB_END_STATEMENT.match?(string)
+
+            @parent << result
+
           else
             # expressions and the like are handled a bit later
             # TODO: perhaps a tad more efficient to capture/transform them
@@ -123,7 +131,7 @@ module I18nliner
           result = "<%= t :#{key}, #{default}"
           result << ", " << options if options
           result << ", " << wrappers if wrappers
-          result << (@lines > 0 ? "\n" * @lines : " ")
+          result << (@lines.positive? ? "\n" * @lines : " ")
           result << "%>"
         end
 
@@ -131,10 +139,10 @@ module I18nliner
         # expression
         def infer_interpolation_key(string, others)
           key = string.downcase
-          key.sub!(/\.html_safe\z/, '')
-          key.gsub!(/[^a-z0-9]/, ' ')
+          key.delete_suffix!(".html_safe")
+          key.gsub!(/[^a-z0-9]/, " ")
           key.strip!
-          key.gsub!(/ +/, '_')
+          key.gsub!(/ +/, "_")
           key.slice!(20)
           i = 0
           base_key = key
@@ -147,12 +155,11 @@ module I18nliner
 
         def extract_wrappers!(source, wrappers, placeholder_map)
           source = extract_html_wrappers!(source, wrappers, placeholder_map)
-          source = extract_helper_wrappers!(source, wrappers, placeholder_map)
-          source
+          extract_helper_wrappers!(source, wrappers, placeholder_map)
         end
 
         def find_or_add_wrapper(wrapper, wrappers)
-          unless pos = wrappers.index(wrapper)
+          unless (pos = wrappers.index(wrapper))
             pos = wrappers.size
             wrappers << wrapper
           end
@@ -161,12 +168,12 @@ module I18nliner
 
         # incidentally this converts entities to their corresponding values
         def extract_html_wrappers!(source, wrappers, placeholder_map)
-          default = ''
+          default = +""
           nodes = Nokogiri::HTML.fragment(source).children
           nodes.each do |node|
             if node.is_a?(Nokogiri::XML::Text)
               default << node.content
-            elsif text = extract_text(node)
+            elsif (text = extract_text(node))
               wrapper = node.to_s.sub(text, "\\\\1")
               wrapper = prepare_wrapper(wrapper, placeholder_map)
               pos = find_or_add_wrapper(wrapper, wrappers)
@@ -205,16 +212,16 @@ module I18nliner
         end
 
         def extract_temp_placeholders!
-          extract_placeholders!(@buffer, ERB_EXPRESSION, false) do |str, map|
+          extract_placeholders!(@buffer, ERB_EXPRESSION, wrap_placeholder: false) do |str, map|
             ["__I18NLINER_#{map.size}__", str]
           end
         end
 
-        def extract_placeholders!(buffer = @buffer, pattern = ERB_EXPRESSION, wrap_placeholder = true)
+        def extract_placeholders!(buffer = @buffer, pattern = ERB_EXPRESSION, wrap_placeholder: true)
           map = {}
-          buffer.gsub!(pattern) do |str|
-            key, str = yield($~[:content], map)
-            map[key] = str
+          buffer.gsub!(pattern) do
+            key, str2 = yield($~[:content], map)
+            map[key] = str2
             wrap_placeholder ? "%{#{key}}" : key
           end
           map
@@ -231,7 +238,7 @@ module I18nliner
           end
 
           default.strip!
-          default.gsub!(/\s+/, ' ')
+          default.gsub!(/\s+/, " ")
 
           key = infer_key(default, options)
           default = default.inspect
@@ -243,21 +250,23 @@ module I18nliner
         def options_to_ruby(options)
           options["i18nliner_inferred_key"] = "true"
           options.map do |key, value|
-            ":" << key << " => (" << value << ")"
+            ":#{key} => (#{value})"
           end.join(", ")
         end
 
         def wrappers_to_ruby(wrappers)
-          return if wrappers.size == 0
-          ":wrappers => [" << wrappers.join(", ") << "]"
+          return if wrappers.empty?
+
+          ":wrappers => [#{wrappers.join(", ")}]"
         end
 
         def extract_text(root_node)
           text = nil
           nodes = root_node.children.to_a
-          while node = nodes.shift
+          while (node = nodes.shift)
             if node.is_a?(Nokogiri::XML::Text) && !node.content.strip.empty?
-              raise UnwrappableContentError.new "multiple text nodes in html markup" if text
+              raise UnwrappableContentError, "multiple text nodes in html markup" if text
+
               text = node.content
             else
               nodes.concat node.children
@@ -268,7 +277,7 @@ module I18nliner
 
         def wrap(text, index)
           delimiter = "*" * index
-          "" << delimiter << text << delimiter
+          "#{delimiter}#{text}#{delimiter}"
         end
 
         def infer_wrappers(source)
@@ -286,7 +295,7 @@ module I18nliner
         <%=
         .*?
         (\sdo|\{)
-        (\s*\|[^\|]+\|)?
+        (\s*\|[^|]+\|)?
         \s*
         %>
         \z
@@ -330,7 +339,8 @@ module I18nliner
         #    since it's a no-go
         # TODO get line numbers for errors
         ctx = @source.split(ERB_TOKENIZER).inject(Context.new, :<<)
-        raise MalformedErbError.new('possibly unterminated block expression') if ctx.parent
+        raise MalformedErbError, "possibly unterminated block expression" if ctx.parent
+
         ctx.result
       end
     end

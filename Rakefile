@@ -1,10 +1,12 @@
-require 'rake'
-require 'bundler/gem_tasks'
+# frozen_string_literal: true
 
-require 'rspec/core'
-require 'rspec/core/rake_task'
+require "rake"
+require "bundler/gem_tasks"
+
+require "rspec/core"
+require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:spec) do |spec|
-  spec.pattern = FileList['spec/**/*_spec.rb']
+  spec.pattern = FileList["spec/**/*_spec.rb"]
 end
 
-task :default => :spec
+task default: :spec

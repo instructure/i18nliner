@@ -1,5 +1,7 @@
-require 'i18nliner/commands/basic_formatter'
-require 'i18nliner/commands/color_formatter'
+# frozen_string_literal: true
+
+require "i18nliner/commands/basic_formatter"
+require "i18nliner/commands/color_formatter"
 
 module I18nliner
   module Commands

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module I18nliner
   module Extractors
     module SexpHelper
@@ -7,18 +9,19 @@ module I18nliner
 
       def string_concatenation?(exp)
         exp.sexp_type == :call &&
-        exp[2] == :+ &&
-        exp.last &&
-        exp.last.sexp_type == :str
+          exp[2] == :+ &&
+          exp.last &&
+          exp.last.sexp_type == :str
       end
 
       def raw(exp)
         exp.shift
-        return exp.shift
+        exp.shift
       end
 
       def string_from(exp)
         return raw(exp) if exp.sexp_type == :str
+
         exp.shift
         lhs = exp.shift
         exp.shift
@@ -33,7 +36,7 @@ module I18nliner
         end
       end
 
-      class UnsupportedExpression; end
+      UnsupportedExpression = Object.new.freeze
     end
   end
 end

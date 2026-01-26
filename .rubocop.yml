@@ -1,0 +1,16 @@
+inherit_gem:
+  rubocop-inst:
+  - rubocop.yml
+  - rubocop-rspec.yml
+
+plugins:
+  - rubocop-rake
+
+AllCops:
+  TargetRubyVersion: 3.2
+  NewCops: enable
+
+Style/Documentation:
+  Enabled: false
+Style/SpecialGlobalVars:
+  Enabled: false

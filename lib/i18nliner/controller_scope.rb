@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "i18nliner/scope"
 
 module I18nliner
