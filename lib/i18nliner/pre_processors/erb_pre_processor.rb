@@ -2,8 +2,6 @@ require 'i18nliner/errors'
 require 'i18nliner/call_helpers'
 require 'i18nliner/extractors/sexp_helper'
 require 'nokogiri'
-require 'ruby_parser'
-require 'ruby2ruby'
 
 module I18nliner
   module PreProcessors
@@ -37,8 +35,14 @@ module I18nliner
         DEFINITIONS = [
           {:method => :link_to, :pattern => /link_to/, :arg => 0}
         ]
-        RUBY2RUBY = Ruby2Ruby.new
-        PARSER = RubyParser.new
+
+        def self.parser
+          @parser ||= (require 'ruby_parser'; RubyParser.new)
+        end
+
+        def self.ruby2ruby
+          @ruby2ruby ||= (require 'ruby2ruby'; Ruby2Ruby.new)
+        end
 
         def self.match_for(string)
           DEFINITIONS.each do |info|
@@ -60,7 +64,7 @@ module I18nliner
         def wrappable?
           return @wrappable if !@wrappable.nil?
           begin
-            sexps = PARSER.parse(@source)
+            sexps = self.class.parser.parse(@source)
             @wrappable = sexps.sexp_type == :call &&
                          sexps[1].nil? &&
                          sexps[2] == @method &&
@@ -75,10 +79,10 @@ module I18nliner
           if stringish?(sexp)
             @content = string_from(sexp)
           else
-            @placeholder = RUBY2RUBY.process(sexp)
+            @placeholder = self.class.ruby2ruby.process(sexp)
           end
           sexps[@arg + SEXP_ARG_OFFSET] = Sexp.new(:str, "\\1")
-          @wrapper = RUBY2RUBY.process(sexps)
+          @wrapper = self.class.ruby2ruby.process(sexps)
         end
       end
 
