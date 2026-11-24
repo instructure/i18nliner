@@ -7,7 +7,7 @@ PATH
       globby (>= 0.1.1)
       i18n (>= 1.8.6)
       nokogiri (>= 1.5.0)
-      prism (~> 1.8)
+      prism (>= 1.8, < 3.0)
       ruby2ruby (~> 2.4)
       sexp_processor (~> 4.10)
       ya2yaml (= 0.31)
@@ -54,8 +54,9 @@ GEM
     lint_roller (1.1.0)
     logger (1.7.0)
     mini_portile2 (2.8.9)
-    minitest (6.0.1)
-      prism (~> 1.5)
+    minitest (6.1.0)
+      drb (~> 2.0)
+      prism (>= 1.5, < 3)
     nokogiri (1.19.0)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
@@ -72,7 +73,7 @@ GEM
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
-    prism (1.8.0)
+    prism (2.1.0)
     psych (5.3.1)
       date
       stringio
@@ -110,9 +111,11 @@ GEM
       rubocop-ast (>= 1.48.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.49.0)
+    rubocop-ast (1.53.0)
+      ast (~> 2.4)
       parser (>= 3.3.7.2)
-      prism (~> 1.7)
+      prism (>= 1.7)
+      racc
     rubocop-inst (1.2.3)
       rubocop (~> 1.72, >= 1.72.1)
       rubocop-performance (~> 1.24)
